@@ -1,8 +1,8 @@
 __author__ = 'Aaron'
 
-from constants import *
 import random
-import Board
+from Board import *
+
 
 # FOOD DEFINITION
 class Food:

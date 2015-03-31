@@ -2,7 +2,8 @@ __author__ = 'Aaron'
 
 # IMPORTS
 import pygame
-from Snake import Player, Board, Food
+from Player import *
+from Food import *
 from constants import *
 from pygame.locals import *
 
@@ -285,7 +286,6 @@ class PlayState(State):
                 self.board.set_cell(food.position[0], food.position[1], EMPTY)
                 food.move()
                 player.score += food.score
-                print(player.score)
                 player.length += 1
 
             self.board.set_cell(row, column, player.number)

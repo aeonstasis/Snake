@@ -1,6 +1,6 @@
 __author__ = 'Aaron'
 
-import Board
+from Board import *
 
 
 # PLAYER DEFINITION
