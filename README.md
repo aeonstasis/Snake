@@ -8,26 +8,38 @@ The objective of the game is to collect "food" items that respawn randomly in th
 When the snake collects food, its length will increase by one, making movement progressively more difficult.
 
 ## Implementation Details
-The game is laid out in a very OOP fashion. Constants and values derived from them were stored in constants.py, effectively a configuration file. A main class, Snake.py, implemented the animation cycle and defined classes for the board, player, and food. A separate class, States.py, defined the behavior of different states that would be processed by the main class.
+The game is laid out in a very OOP fashion. 
+
+constants.py, effectively a configuration file, stored constants and values derived from them. 
+
+A lightweight main class, Snake.py, implemented the animation cycle using a finite state machine to delegate behavior to additional state classes. 
+
+A separate class, States.py, defined the behavior of those different states that would be processed by the main class. 
+
+Finally, Player, Food, and Board classes defined relevant variables and the necessary methods to operate on them. Board also contained static methods to perform basic grid operations, such as collision checking and equality checks.
 
 ### constants.py 
 This file holds game constants and values derived from them that determine layout and behavior details.
+
 This allows for easy tweaking of parameters and avoids using "magic numbers". This also allows for potential implementation of dynamic resizing.
 
 ### Snake.py 
-This file contains the runner main() method, as well as class definitions for the Player, Board, and Food.
-The Food, Player, and Board classes define their respective instance variables and methods that update them. Board also contains static methods for collision checking and cell operations. 
+This file contains the runner main() method and the StateManager class.
+
+The StateManager class points to the current state and also assigns itself as a field to that state. This reference allows for the current state to be changed by the state classes themselves.
 
 main() follows the animation cycle and delegates behavior to one of several States, which encapsulate all the information for the current state of the game. 
 
 ### States.py 
-This file holds the states that determine actual game behavior. An interface, State, contains update(), render(), and handle_event() methods. At each tick, update() updates all variables and game internals. render() displays necessary information to the screen, and handle_event() listens for keypresses that would change the state.
+This file holds the states that determine actual game behavior. An interface, State, contains update(), render(), and handle_event() methods. 
+
+At each tick, update() updates all variables and game internals. render() displays necessary information to the screen, and handle_event() listens for keypresses that would change the state.
 
 ## Artificial Neural Network
 I will use PyBrain.
 
 ## In Progress
-Menu with player color selection
-Generalize game to Tron
+Menu with player color selection <br>
+Generalize game to Tron <br>
 Dynamic resizing and maximizing window
 
