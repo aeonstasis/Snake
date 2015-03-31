@@ -10,13 +10,13 @@ When the snake collects food, its length will increase by one, making movement p
 ## Implementation Details
 The game is laid out in a very OOP fashion. 
 
-constants.py, effectively a configuration file, stored constants and values derived from them. 
+* constants.py, effectively a configuration file, stored constants and values derived from them. 
 
-A lightweight main class, Snake.py, implemented the animation cycle using a finite state machine to delegate behavior to additional state classes. 
+* A lightweight main class, Snake.py, implemented the animation cycle using a finite state machine to delegate behavior to additional state classes. 
 
-A separate class, States.py, defined the behavior of those different states that would be processed by the main class. 
+* A separate class, States.py, defined the behavior of those different states that would be processed by the main class. 
 
-Finally, Player, Food, and Board classes defined relevant variables and the necessary methods to operate on them. Board also contained static methods to perform basic grid operations, such as collision checking and equality checks.
+* Finally, Player, Food, and Board classes defined relevant variables and the necessary methods to operate on them. Board also contained static methods to perform basic grid operations, such as collision checking and equality checks.
 
 ### constants.py 
 This file holds game constants and values derived from them that determine layout and behavior details.
