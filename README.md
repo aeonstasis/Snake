@@ -4,7 +4,8 @@ This is an implementation of 2D Snake using pygame. The game is being used to to
 ## Gameplay
 The player controls a "snake", indicated by a colored square, with the arrow keys, moving around a grid.
 Colliding with itself or a wall results in a game over, while colliding with "food", yellow circles, picks it up.
-The objective of the game is to collect "food" items that respawn randomly in the grid when the previous one is collected.
+
+The objective of the game is to collect "food" items that respawn randomly in the grid when the previous one is collected. Player score will increase by a constant (default: 10) number for each "food" item collected.
 When the snake collects food, its length will increase by one, making movement progressively more difficult.
 
 ## Implementation Details
@@ -36,7 +37,7 @@ This file holds the states that determine actual game behavior. An interface, St
 At each tick, update() updates all variables and game internals. render() displays necessary information to the screen, and handle_event() listens for keypresses that would change the state.
 
 ## Artificial Neural Network
-I will use PyBrain.
+PyBrain is an existing Python library that provides the ANN functionality. I will interface my game to PyBrain functions and also attempt to code my own simple implementation for comparison.
 
 ## In Progress
 Menu with player color selection <br>
