@@ -1,7 +1,9 @@
 __author__ = 'Aaron'
 
 import random
+
 from Board import *
+
 
 
 # FOOD DEFINITION

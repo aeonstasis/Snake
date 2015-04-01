@@ -9,7 +9,7 @@ class Board:
         """
         Initializes board matrix to zeros and draws it to the screen.
         """
-        self.board = [[0*i*j for i in range(NUM_COLS)] for j in range(NUM_ROWS)]
+        self.board = [[0 * i * j for i in range(NUM_COLS)] for j in range(NUM_ROWS)]
 
     def reset(self):
         """

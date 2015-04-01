@@ -2,10 +2,12 @@ __author__ = 'Aaron'
 
 # IMPORTS
 import pygame
+from pygame.locals import *
+
 from Player import *
 from Food import *
 from constants import *
-from pygame.locals import *
+
 
 
 # STATE DEFINITIONS
@@ -81,7 +83,8 @@ class PlayState(State):
 
         # PLAYER NAMES & SCORES
         self.font = pygame.font.SysFont(FONT, 24)
-        self.player_text = self.font.render("Player 1: {0:>4d}".format(self.player.score), True, (0, 0, 255))  # TODO make color generic for choice
+        self.player_text = self.font.render("Player 1: {0:>4d}".format(self.player.score), True,
+                                            (0, 0, 255))  # TODO make color generic for choice
         self.player_text_pos = self.player_text.get_rect()
 
         self.player_text_pos.x = self.player_text_pos.y = CELL_SIDE
@@ -263,10 +266,14 @@ class PlayState(State):
         # READ KEYPRESS
         keypress = pygame.key.get_pressed()
 
-        if keypress[K_RIGHT]: player.direction = 'RIGHT'
-        elif keypress[K_LEFT]: player.direction = 'LEFT'
-        elif keypress[K_DOWN]: player.direction = 'DOWN'
-        elif keypress[K_UP]: player.direction = 'UP'
+        if keypress[K_RIGHT]:
+            player.direction = 'RIGHT'
+        elif keypress[K_LEFT]:
+            player.direction = 'LEFT'
+        elif keypress[K_DOWN]:
+            player.direction = 'DOWN'
+        elif keypress[K_UP]:
+            player.direction = 'UP'
 
         # PLAYER POSITION UPDATE
         row, column = player.update()
@@ -315,7 +322,7 @@ class GameOverState(State):
 
     def render(self, screen):
         if self.shouldDim:
-            self.dim.dim(255*2/3)
+            self.dim.dim(255 * 2 / 3)
             self.shouldDim = 0
         text_rect = self.text_rect
         text_x = screen.get_width() / 2 - text_rect.width / 2

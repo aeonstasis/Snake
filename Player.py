@@ -1,7 +1,5 @@
 __author__ = 'Aaron'
 
-from Board import *
-
 
 # PLAYER DEFINITION
 class Player():

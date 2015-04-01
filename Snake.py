@@ -1,10 +1,11 @@
 __author__ = 'Aaron'
 
 # IMPORTS
+import sys
+
 from States import *
 from constants import *
-from pygame.locals import *
-import sys
+
 
 # GLOBAL VARIABLES
 clock = pygame.time.Clock()
