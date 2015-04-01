@@ -26,7 +26,7 @@ class State(object):
 class MenuState(State):
     def __init__(self):
         super(MenuState, self).__init__()
-        self.font = pygame.font.SysFont("helvetica", 24)
+        self.font = pygame.font.SysFont(FONT, 24)
         self.text = self.font.render("Press ENTER to begin", True, WHITE)
         self.text_rect = self.text.get_rect()
 
@@ -49,8 +49,8 @@ class MenuState(State):
 class OptionsState(State):
     def __init__(self):
         super(OptionsState, self).__init__()
-        self.font = pygame.font.SysFont("helvetica", 24)
-        self.text = self.font.render("Player 2 uses the arrow keys to move up, left, down, and right.", True, WHITE)
+        self.font = pygame.font.SysFont(FONT, 24)
+        self.text = self.font.render("The player uses the arrow keys to move up, left, down, and right.", True, WHITE)
         self.text_rect = self.text.get_rect()
 
     def render(self, screen):
@@ -80,8 +80,8 @@ class PlayState(State):
         self.initialized = True  # flag used for initial board generation
 
         # PLAYER NAMES & SCORES
-        self.font = pygame.font.SysFont("helvetica", 24)
-        self.player_text = self.font.render("Player 1: {0:4d}".format(self.player.score), True, (0, 0, 255))  # TODO make color generic for choice
+        self.font = pygame.font.SysFont(FONT, 24)
+        self.player_text = self.font.render("Player 1: {0:>4d}".format(self.player.score), True, (0, 0, 255))  # TODO make color generic for choice
         self.player_text_pos = self.player_text.get_rect()
 
         self.player_text_pos.x = self.player_text_pos.y = CELL_SIDE
@@ -226,7 +226,7 @@ class PlayState(State):
             row, column = delete[0]
             transition = delete[1]
             self.draw_cell(row, column, DEFAULT_COLOR, screen)
-            PlayState.fill_gap((row, column), transition, MARGIN_COLOR, screen)
+            # PlayState.fill_gap((row, column), transition, MARGIN_COLOR, screen)
             player.delete = None, None
 
         old_center = food.old_center
@@ -243,7 +243,7 @@ class PlayState(State):
             row, column = positions[i]
             transition = transitions[i]
             self.draw_cell(row, column, player.color, screen)
-            PlayState.fill_gap((row, column), transition, player.color, screen)
+            # PlayState.fill_gap((row, column), transition, player.color, screen)
 
         # DRAW CURRENT POSITION
         row, column = player.get_position()
@@ -252,7 +252,9 @@ class PlayState(State):
         # UPDATE PLAYER TEXT
         # TODO make color generic for choice
         self.player_text = self.font.render("Player 1: {0:4d}".format(self.player.score), True, (0, 0, 255))
-        pygame.draw.rect(screen, DEFAULT_COLOR, self.player_text_pos)
+        rect = self.player_text_pos
+        rect.width += 20
+        pygame.draw.rect(screen, DEFAULT_COLOR, rect)
         screen.blit(self.player_text, self.player_text_pos)
 
     def update(self):
@@ -268,13 +270,16 @@ class PlayState(State):
 
         # PLAYER POSITION UPDATE
         row, column = player.update()
-        player.set_position(row, column)
+        valid = player.set_position(row, column)
+        if valid == -1 and player.direction != 'START':
+            self.manager.go_to(GameOverState())
 
         # Remove tail end of snake if needed (only impacts grid)
         delete = player.delete
         if delete[0] is not None and delete[1] is not None:
             position = delete[0]
             self.board.set_cell(position[0], position[1], EMPTY)
+            player.position_set.remove(position)
 
         # COLLISION CHECKING AND BOARD UPDATE
         food = self.food
@@ -302,7 +307,7 @@ class PlayState(State):
 class GameOverState(State):
     def __init__(self):
         super(GameOverState, self).__init__()
-        self.font = pygame.font.SysFont("helvetica", 24)
+        self.font = pygame.font.SysFont(FONT, 24)
         self.text = self.font.render("Game Over", True, WHITE)
         self.text_rect = self.text.get_rect()
         self.dim = Dimmer(1)

@@ -1,13 +1,13 @@
 __author__ = 'Aaron'
 
 # CONSTANTS
-FRAMES_PER_SEC = 25
+FRAMES_PER_SEC = 17
 SCREEN_WIDTH = 1024
 SCREEN_HEIGHT = 768
 NUM_ROWS = 30
 NUM_COLS = 45
 DISPLAY_MARGIN = 80  # Used to display player scores and player names
-CELL_MARGIN = 1 # TODO need to make this able to be changed, fill_gap and render calcs are off
+CELL_MARGIN = 1  # TODO need to make this able to be changed, fill_gap and render calcs are off
 
 RED = (255, 0, 0)
 BLUE = (0, 0, 255)
@@ -18,6 +18,8 @@ YELLOW = (255, 255, 0)
 # DEFAULT_COLOR = (111, 198, 217)
 MARGIN_COLOR = GRAY
 DEFAULT_COLOR = BLACK
+
+FONT = 'helvetica'
 
 FOOD = 10
 EMPTY = 0

@@ -11,6 +11,7 @@ class Player():
         self.direction = direction
         self.number = player_number
 
+        self.position_set = set(self.positions)
         self.transitions = []
         self.delete = None, None
         self.length = 1
@@ -37,17 +38,20 @@ class Player():
         Make sure not to add more positions than current snake length.
         :param row: row to move to
         :param column: column to move to
+        :return -1 if doubling back on itself, 0 otherwise
         """
-        repeat = Board.cell_equals((row, column), self.get_position())
-
-        # Only update list of positions if moving to different space
-        if not repeat:
+        if (row, column) in self.position_set:
+            return -1
+        else:
             self.transitions.append(self.direction)
             self.positions.append((row, column))
+            self.position_set.add((row, column))
 
         # Restrict length of snake
         if len(self.positions) > self.length:
             self.delete = self.positions.pop(0), self.transitions.pop(0)
+
+        return 0
 
     def get_position(self):
         """
