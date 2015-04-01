@@ -11,6 +11,8 @@ from constants import *
 
 
 
+
+
 # STATE DEFINITIONS
 class State(object):
     def __init__(self):
@@ -326,7 +328,7 @@ class PlayState(State):
 
 class PauseState(State):
     def __init__(self):
-        super(GameOverState, self).__init__()
+        super(PauseState, self).__init__()
         self.font = pygame.font.SysFont(FONT, 24)
         self.text = self.font.render("Game Over", True, WHITE)
         self.text_rect = self.text.get_rect()
