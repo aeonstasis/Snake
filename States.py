@@ -10,6 +10,7 @@ from constants import *
 
 
 
+
 # STATE DEFINITIONS
 class State(object):
     def __init__(self):
@@ -29,15 +30,21 @@ class MenuState(State):
     def __init__(self):
         super(MenuState, self).__init__()
         self.font = pygame.font.SysFont(FONT, 24)
-        self.text = self.font.render("Press ENTER to begin", True, WHITE)
+
+        self.text = self.font.render("Press SPACE to view the instructions", True, WHITE)
         self.text_rect = self.text.get_rect()
+        self.text_rect.x = SCREEN_WIDTH // 2 - (self.text_rect.width // 2)
+        self.text_rect.y = SCREEN_HEIGHT // 2 - self.text_rect.height
+
+        self.text1 = self.font.render("Press ENTER to begin", True, WHITE)
+        self.text1_rect = self.text1.get_rect()
+        self.text1_rect.x = SCREEN_WIDTH // 2 - (self.text1_rect.width // 2)
+        self.text1_rect.y = SCREEN_HEIGHT // 2 + (self.text1_rect.height // 2)
 
     def render(self, screen):
         screen.fill(BLACK)
-        text_rect = self.text_rect
-        text_x = screen.get_width() / 2 - text_rect.width / 2
-        text_y = screen.get_height() / 2 - text_rect.height / 2
-        screen.blit(self.text, [text_x, text_y])
+        screen.blit(self.text, self.text_rect)
+        screen.blit(self.text1, self.text1_rect)
 
     def update(self):
         pass
@@ -46,6 +53,8 @@ class MenuState(State):
         for e in events:
             if e.type == KEYDOWN and e.key == K_RETURN:
                 self.manager.go_to(PlayState())
+            elif e.type == KEYDOWN and e.key == K_SPACE:
+                self.manager.go_to(OptionsState())
 
 
 class OptionsState(State):
@@ -54,13 +63,18 @@ class OptionsState(State):
         self.font = pygame.font.SysFont(FONT, 24)
         self.text = self.font.render("The player uses the arrow keys to move up, left, down, and right.", True, WHITE)
         self.text_rect = self.text.get_rect()
+        self.text_rect.x = SCREEN_WIDTH // 2 - (self.text_rect.width // 2)
+        self.text_rect.y = SCREEN_HEIGHT // 2 - self.text_rect.height
+
+        self.text1 = self.font.render("Press ENTER to begin", True, WHITE)
+        self.text1_rect = self.text1.get_rect()
+        self.text1_rect.x = SCREEN_WIDTH // 2 - (self.text1_rect.width // 2)
+        self.text1_rect.y = SCREEN_HEIGHT // 2 + (self.text1_rect.height // 2)
 
     def render(self, screen):
-        text_rect = self.text_rect
-        text_x = screen.get_width() / 2 - text_rect.width / 2
-        text_y = screen.get_height() / 2 - text_rect.height / 2
-
-        screen.blit(self.text, [text_x, text_y])
+        screen.fill(BLACK)
+        screen.blit(self.text, self.text_rect)
+        screen.blit(self.text1, self.text1_rect)
 
     def update(self):
         pass
@@ -90,13 +104,10 @@ class PlayState(State):
         self.player_text_pos.x = self.player_text_pos.y = CELL_SIDE
 
         # LOGO
-        """
-        self.logo = pygame.image.load("logo1.png")
-        logo_size = self.logo.get_size()
-        self.logo = pygame.transform.scale(self.logo, (logo_size[0] / logo_size[1] * DISPLAY_MARGIN, DISPLAY_MARGIN))
-        self.logo_rect = self.logo.get_rect()
-        self.logo_rect.centerx = SCREEN_WIDTH // 2
-        """
+        self.logo_text = pygame.font.SysFont(FONT, 48).render("SNAKE", True, (0, 255, 0))
+        self.logo_text_pos = self.logo_text.get_rect()
+        self.logo_text_pos.x = SCREEN_WIDTH // 2
+        self.logo_text_pos.y = CELL_SIDE
 
     @staticmethod
     def draw_bounds(line_color, screen):
@@ -252,13 +263,15 @@ class PlayState(State):
         row, column = player.get_position()
         self.draw_cell(row, column, player.color, screen)
 
-        # UPDATE PLAYER TEXT
+        # UPDATE TEXT
         # TODO make color generic for choice
         self.player_text = self.font.render("Player 1: {0:4d}".format(self.player.score), True, (0, 0, 255))
         rect = self.player_text_pos
         rect.width += 20
         pygame.draw.rect(screen, DEFAULT_COLOR, rect)
         screen.blit(self.player_text, self.player_text_pos)
+
+        screen.blit(self.logo_text, self.logo_text_pos)
 
     def update(self):
         player = self.player
@@ -309,6 +322,34 @@ class PlayState(State):
         for e in events:
             if e.type == KEYDOWN and e.key == K_ESCAPE:
                 self.manager.go_to(MenuState())
+
+
+class PauseState(State):
+    def __init__(self):
+        super(GameOverState, self).__init__()
+        self.font = pygame.font.SysFont(FONT, 24)
+        self.text = self.font.render("Game Over", True, WHITE)
+        self.text_rect = self.text.get_rect()
+        self.dim = Dimmer(1)
+        self.shouldDim = 1
+
+    def render(self, screen):
+        if self.shouldDim:
+            self.dim.dim(255 * 2 / 3)
+            self.shouldDim = 0
+        text_rect = self.text_rect
+        text_x = screen.get_width() / 2 - text_rect.width / 2
+        text_y = screen.get_height() / 2 - text_rect.height / 2
+        screen.blit(self.text, [text_x, text_y])
+
+    def update(self):
+        pass
+
+    def handle_events(self, events):
+        # self.dim.undim()
+        for e in events:
+            if e.type == KEYDOWN and e.key == K_RETURN:
+                self.manager.go_to(PlayState())
 
 
 class GameOverState(State):
