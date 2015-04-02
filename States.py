@@ -10,9 +10,6 @@ from constants import *
 
 
 
-
-
-
 # STATE DEFINITIONS
 class State(object):
     def __init__(self):
