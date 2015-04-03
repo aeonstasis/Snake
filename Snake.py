@@ -13,9 +13,17 @@ clock = pygame.time.Clock()
 
 # STATE MANAGER
 class StateManager(object):
-    def __init__(self):
+    def __init__(self, is_ann=0):
+        """
+        Initializes the state manager.
+        :param is_ann: If set to 1, will use the neural network to play the game.
+        """
         self.state = None
-        self.go_to(MenuState())
+        self.is_ann = is_ann
+        if is_ann:
+            self.go_to(PlayState())
+        else:
+            self.go_to(MenuState())
 
     def go_to(self, state):
         self.state = state
@@ -31,7 +39,7 @@ def main():
 
     running = True
 
-    manager = StateManager()
+    manager = StateManager(0)  # Set to 1 to have ANN play
 
     while running:
         clock.tick(FRAMES_PER_SEC)

@@ -10,7 +10,6 @@ from constants import *
 
 
 
-
 # STATE DEFINITIONS
 class State(object):
     def __init__(self):
@@ -98,7 +97,7 @@ class PlayState(State):
         # PLAYER NAMES & SCORES
         self.font = pygame.font.SysFont(FONT, 24)
         self.player_text = self.font.render("Player 1: {0:>4d}".format(self.player.score), True,
-                                            (0, 0, 255))  # TODO make color generic for choice
+                                            WHITE)  # TODO make color generic for choice
         self.player_text_pos = self.player_text.get_rect()
 
         self.player_text_pos.x = self.player_text_pos.y = CELL_SIDE
@@ -265,7 +264,7 @@ class PlayState(State):
 
         # UPDATE TEXT
         # TODO make color generic for choice
-        self.player_text = self.font.render("Player 1: {0:4d}".format(self.player.score), True, (0, 0, 255))
+        self.player_text = self.font.render("Player 1: {0:4d}".format(self.player.score), True, WHITE)
         rect = self.player_text_pos
         rect.width += 20
         pygame.draw.rect(screen, DEFAULT_COLOR, rect)
@@ -319,6 +318,23 @@ class PlayState(State):
 
         # FOOD UPDATE
         self.board.set_cell(food.position[0], food.position[1], FOOD)
+
+    def get_inputs(self):
+        """
+        Return a list of the necessary inputs for a neural network.
+        :return: [Manhattan distance to food (x, y), state of board to left,
+                  in front of, and right of the player]
+        """
+        row, col = self.player.get_position()  # player's current position
+        food_row, food_col = self.food.position  # position of food
+
+        dist_x = food_col - col
+        dist_y = food_row - row
+        left = self.board.get_cell(row, col - 1)
+        front = self.board.get_cell(row - 1, col)
+        right = self.board.get_cell(row, col + 1)
+
+        return [dist_x, dist_y, left, front, right]
 
 
     def handle_events(self, events):
