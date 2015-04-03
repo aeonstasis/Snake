@@ -10,6 +10,7 @@ from constants import *
 
 
 
+
 # STATE DEFINITIONS
 class State(object):
     def __init__(self):
@@ -89,8 +90,9 @@ class PlayState(State):
         super(PlayState, self).__init__()
 
         # ANN (optional)
-        if self.manager.is_ann:
-            self.ann = NeuralNet(NUM_INPUTS, NUM_OUTPUTS, NUM_HIDDEN, NUM_PER_HIDDEN)
+        self.is_ann = 0
+        # if self.manager.is_ann:
+        self.ann = NeuralNet(NUM_INPUTS, NUM_OUTPUTS, NUM_HIDDEN, NUM_PER_HIDDEN)
 
         # PLAYER, BOARD, FOOD
         self.player = Player((NUM_ROWS // 2, NUM_COLS // 2), 'START', BLUE, 2)
@@ -301,6 +303,7 @@ class PlayState(State):
         if collision == -1 and player.direction != 'START':
             self.manager.go_to(GameOverState())
         else:
+            self.board.set_cell(row, column, player.number)
             if collision == 1:
                 self.board.set_cell(food.position[0], food.position[1], EMPTY)
                 food.move()
@@ -308,8 +311,6 @@ class PlayState(State):
                     food.move()
                 player.score += food.score
                 player.length += 1
-
-            self.board.set_cell(row, column, player.number)
 
         # FOOD UPDATE
         self.board.set_cell(food.position[0], food.position[1], FOOD)
@@ -340,6 +341,8 @@ class PlayState(State):
                 return 'DOWN'
             elif keypress[K_RIGHT]:
                 return 'RIGHT'
+            else:
+                return self.player.direction  # continue going in same direction
 
     def ann_inputs(self):
         """

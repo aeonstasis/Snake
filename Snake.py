@@ -38,7 +38,6 @@ def main():
     screen.fill((0, 0, 0))
 
     running = True
-
     manager = StateManager(0)  # Set to 1 to have ANN play
 
     while running:
