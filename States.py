@@ -10,6 +10,7 @@ from constants import *
 
 
 
+
 # STATE DEFINITIONS
 class State(object):
     def __init__(self):
@@ -309,6 +310,8 @@ class PlayState(State):
             if collision == 1:
                 self.board.set_cell(food.position[0], food.position[1], EMPTY)
                 food.move()
+                while self.board.get_cell(food.position[0], food.position[1]) != EMPTY:
+                    food.move()
                 player.score += food.score
                 player.length += 1
 
@@ -316,6 +319,7 @@ class PlayState(State):
 
         # FOOD UPDATE
         self.board.set_cell(food.position[0], food.position[1], FOOD)
+
 
     def handle_events(self, events):
         for e in events:
