@@ -88,6 +88,10 @@ class PlayState(State):
     def __init__(self):
         super(PlayState, self).__init__()
 
+        # ANN (optional)
+        if self.manager.is_ann:
+            self.ann = NeuralNet(NUM_INPUTS, NUM_OUTPUTS, NUM_HIDDEN, NUM_PER_HIDDEN)
+
         # PLAYER, BOARD, FOOD
         self.player = Player((NUM_ROWS // 2, NUM_COLS // 2), 'START', BLUE, 2)
         self.board = Board()
@@ -275,17 +279,8 @@ class PlayState(State):
     def update(self):
         player = self.player
 
-        # READ KEYPRESS
-        keypress = pygame.key.get_pressed()
-
-        if keypress[K_RIGHT]:
-            player.direction = 'RIGHT'
-        elif keypress[K_LEFT]:
-            player.direction = 'LEFT'
-        elif keypress[K_DOWN]:
-            player.direction = 'DOWN'
-        elif keypress[K_UP]:
-            player.direction = 'UP'
+        # UPDATE NEXT MOVE
+        player.direction = self.get_move()
 
         # PLAYER POSITION UPDATE
         row, column = player.update()
@@ -319,7 +314,34 @@ class PlayState(State):
         # FOOD UPDATE
         self.board.set_cell(food.position[0], food.position[1], FOOD)
 
-    def get_inputs(self):
+    def get_move(self):
+        """
+        Get the next move to make. Next keypress if human player, output of neural network otherwise.
+        :return: next direction to move in
+        """
+        if self.manager.is_ann:
+            outputs = self.ann.update(self.ann_inputs())  # retrieve outputs after updating ann
+            max_output = max(outputs)
+            if outputs[0] is max_output:
+                return 'LEFT'
+            elif outputs[1] is max_output:
+                return 'UP'
+            elif outputs[2] is max_output:
+                return 'DOWN'
+            elif outputs[3] is max_output:
+                return 'RIGHT'
+        else:
+            keypress = pygame.key.get_pressed()
+            if keypress[K_LEFT]:
+                return 'LEFT'
+            elif keypress[K_UP]:
+                return 'UP'
+            elif keypress[K_DOWN]:
+                return 'DOWN'
+            elif keypress[K_RIGHT]:
+                return 'RIGHT'
+
+    def ann_inputs(self):
         """
         Return a list of the necessary inputs for a neural network.
         :return: [Manhattan distance to food (x, y), state of board to left,
