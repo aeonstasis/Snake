@@ -35,8 +35,10 @@ class Board:
         Used to determine what state the cell is in.
         :param row: row to set
         :param column: column to set
-        :return number: player id
+        :return number: state of cell
         """
+        if row < 0 or row >= NUM_ROWS or column < 0 or column >= NUM_COLS:
+            return OUT_BOUNDS
         return self.board[row][column]
 
     @staticmethod
