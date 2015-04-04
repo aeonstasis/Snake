@@ -5,7 +5,6 @@ import random
 from Board import *
 
 
-
 # FOOD DEFINITION
 class Food:
     def __init__(self):

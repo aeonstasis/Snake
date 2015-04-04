@@ -10,7 +10,6 @@ from constants import *
 
 
 
-
 # STATE DEFINITIONS
 class State(object):
     def __init__(self):
@@ -92,7 +91,7 @@ class PlayState(State):
         # ANN (optional)
         self.is_ann = 0
         # if self.manager.is_ann:
-        self.ann = NeuralNet(NUM_INPUTS, NUM_OUTPUTS, NUM_HIDDEN, NUM_PER_HIDDEN)
+        # self.ann = NeuralNet(NUM_INPUTS, NUM_OUTPUTS, NUM_HIDDEN, NUM_PER_HIDDEN)
 
         # PLAYER, BOARD, FOOD
         self.player = Player((NUM_ROWS // 2, NUM_COLS // 2), 'START', BLUE, 2)
@@ -260,7 +259,7 @@ class PlayState(State):
         transitions = player.transitions
         for i in range(len(transitions)):
             row, column = positions[i]
-            transition = transitions[i]
+            # transition = transitions[i]
             self.draw_cell(row, column, player.color, screen)
             # PlayState.fill_gap((row, column), transition, player.color, screen)
 
@@ -350,17 +349,26 @@ class PlayState(State):
         :return: [Manhattan distance to food (x, y), state of board to left,
                   in front of, and right of the player]
         """
-        row, col = self.player.get_position()  # player's current position
-        food_row, food_col = self.food.position  # position of food
-
-        dist_x = food_col - col
-        dist_y = food_row - row
+        row, col = self.player.get_position()
+        dist_x, dist_y = Board.distance_to((row, col), self.food.position)
         left = self.board.get_cell(row, col - 1)
-        front = self.board.get_cell(row - 1, col)
+        up = self.board.get_cell(row - 1, col)
+        down = self.board.get_cell(row + 1, col)
         right = self.board.get_cell(row, col + 1)
 
-        return [dist_x, dist_y, left, front, right]
+        direction = self.player.direction
+        if direction == 'UP':
+            outputs = [dist_x, dist_y, left, up, right]
+        elif direction == 'LEFT':
+            outputs = [dist_x, dist_y, down, left, up]
+        elif direction == 'DOWN':
+            outputs = [dist_x, dist_y, right, down, left]
+        elif direction == 'RIGHT':
+            outputs = [dist_x, dist_y, up, right, down]
+        else:
+            outputs = [dist_x, dist_y, left, up, right]
 
+        return outputs
 
     def handle_events(self, events):
         for e in events:
@@ -372,7 +380,7 @@ class PauseState(State):
     def __init__(self):
         super(PauseState, self).__init__()
         self.font = pygame.font.SysFont(FONT, 24)
-        self.text = self.font.render("Game Over", True, WHITE)
+        self.text = self.font.render("Paused, press ENTER to unpause", True, WHITE)
         self.text_rect = self.text.get_rect()
         self.dim = Dimmer(1)
         self.shouldDim = 1

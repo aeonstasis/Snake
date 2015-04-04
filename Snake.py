@@ -9,6 +9,7 @@ from constants import *
 
 # GLOBAL VARIABLES
 clock = pygame.time.Clock()
+HEADLESS = 0
 
 
 # STATE MANAGER
@@ -19,9 +20,9 @@ class StateManager(object):
         :param is_ann: If set to 1, will use the neural network to play the game.
         """
         self.state = None
-        self.is_ann = is_ann
         if is_ann:
             self.go_to(PlayState())
+            self.score = 0
         else:
             self.go_to(MenuState())
 
@@ -38,7 +39,7 @@ def main():
     screen.fill((0, 0, 0))
 
     running = True
-    manager = StateManager(0)  # Set to 1 to have ANN play
+    manager = StateManager()  # Set to 1 to have ANN play
 
     while running:
         clock.tick(FRAMES_PER_SEC)
@@ -50,6 +51,30 @@ def main():
         manager.state.update()
         manager.state.render(screen)
         pygame.display.flip()
+
+
+# FITNESS FUNCTION
+def fitness(weights):
+    """
+    Calculate the fitness function.
+    :param weights: weights of the ANN being represented.
+    :return: score of the ANN represented by the weights
+    """
+    pygame.init()
+    pygame.display.set_caption("Snake")
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    screen.fill((0, 0, 0))
+
+    manager = StateManager(0)  # Set to 1 to have ANN play
+    while manager.state != GameOverState:
+        clock.tick(FRAMES_PER_SEC)
+
+        manager.state.update()
+        if HEADLESS == 0:
+            manager.state.render(screen)
+
+    return manager.score
+
 
 # PROGRAM EXECUTION
 if __name__ == '__main__':

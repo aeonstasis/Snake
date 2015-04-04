@@ -42,9 +42,9 @@ class Board:
         return self.board[row][column]
 
     @staticmethod
-    def direction_to(position0, position):
+    def distance_to(position0, position):
         """
-        Calculate the direction from one cell to another
+        Calculate the direction from one cell to another. Returns position - position0.
         :return: (delta_x, delta_y)
         """
         (row0, column0) = position0
