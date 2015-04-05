@@ -1,9 +1,7 @@
 __author__ = 'Aaron'
 
-import random
-from math import *
-
 from constants import *
+from NeuralNet import *
 import Snake
 
 
@@ -14,7 +12,7 @@ CROSS_RATE = 0.70
 MUTATE_RATE = 0.15
 
 
-class Genome:
+class Genome:  # TODO figure out whether to integrate ann here
     """
     Represents an individual in a population.
     In this case, the weights representing an individual neural net.
@@ -32,7 +30,7 @@ class Genome:
         copy = Genome(self.weights, self.fitness)
         return copy
 
-    def fitness(self):
+    def get_fitness(self):
         """
         Returns the fitness of an individual genome. Calculates it once, then returns it when prompted again.
         :return: the genome's fitness
@@ -43,22 +41,30 @@ class Genome:
             fitness = Snake.fitness(self.weights)
             return fitness
 
+    def __str__(self):
+        """
+        Pretty print the weights of the neuron.
+        """
+
 
 class GA:
     """
     Encapsulates the methods needed to solve an optimization problem using a genetic
     algorithm.
     """
-    def __init__(self, num_weights, pop_size=POP_SIZE, mut_rate=MUTATE_RATE, cross_rate=CROSS_RATE):
+
+    def __init__(self, num_weights, pop_size=POP_SIZE, num_gens=NUM_GENS, mut_rate=MUTATE_RATE, cross_rate=CROSS_RATE):
         """
         Initialize the genetic algorithm to interface to the ANN.
         :param pop_size: number of genomes per generation
         :param mut_rate: probability of mutation
+        :param num_gens: number of generations to run
         :param cross_rate: crossover rate
         :param num_weights: the total number of weights in our neural net
         """
         # Problem parameters
         self.pop_size = pop_size
+        self.num_gens = num_gens
         self.mut_rate = mut_rate
         self.cross_rate = cross_rate
         self.genome_length = num_weights
@@ -116,55 +122,46 @@ class GA:
                 g2.weights[i] = temp
         return Genome(g1.weights), Genome(g2.weights)
 
-    def optimize(self):
+    def epoch(self, old_population):
         """
-        Implements a genetic algorithm in order to solve an
-        optimization problem.
-        :return: the solution to the optimization problem
+        Runs the GA for one generation, updating the population.
+        :return: the new population
         """
-        # Run for num_gens generations
-        for i in range(NUM_GENS):  # Control number of generations
-            total_fitness = 0
-            for elem in population:  # Identify current most fit individual
-                elem_fitness = elem.fitness
-                total_fitness += elem_fitness
-                if self.problem == "max":
-                    if best is None or elem_fitness > best.fitness:
-                        best = elem
-                else:
-                    if best is None or elem_fitness < best.fitness:
-                        best = elem
+        for genome in old_population:  # Identify current most fit individual
+            self.total_fitness += genome.fitness
+            if best is None or genome.get_fitness() > best.get_fitness():
+                best = genome
 
-            avg_fitness = total_fitness / len(population)  # Record fitness value of population for run
-            best_fitness = best.fitness
-            self.update_data(avg_fitness, best_fitness, i)
+        self.avg_fitness = self.total_fitness / len(old_population)  # Record fitness value of population for run
+        self.best_fitness = best.get_fitness()
 
-            population_next = 0 * [None]
-            for j in range(self.n // 2):  # Generate next generation of individuals
-                p_a = GA.select(self, population, 2)  # Tournament select two parents
-                p_b = GA.select(self, population, 2)
-                (c_a, c_b) = GA.crossover(p_a.copy(), p_b.copy())  # Create two children through uniform crossover
-                GA.mutate(c_a)  # Mutate both children using uniform bit-flip
-                GA.mutate(c_b)
-                population_next.append(c_a)  # Add children to population pool for next gen
-                population_next.append(c_b)
-            population = population_next  # Advance one generation
-        assert (isinstance(best, Genome))
-
-        GA.cnt += 1  # Advance run count
-
-        return best.decode(best.weights)  # Return decoded value of best individual
+        population_next = 0 * [None]
+        for j in range(self.pop_size // 2):  # Generate next generation of individuals
+            p_a = self.select(old_population, 2)  # Tournament select two parents
+            p_b = self.select(old_population, 2)
+            (c_a, c_b) = self.crossover(p_a.copy(), p_b.copy())  # Create two children through uniform crossover
+            self.mutate(c_a)  # Mutate both children using uniform bit-flip
+            self.mutate(c_b)
+            population_next.append(c_a)  # Add children to population pool for next gen
+            population_next.append(c_b)
+        return population_next  # Advance one generation
 
 
 # Runs the GA for the ANN Snake problem
 def main():
-    ga = GA(NUM_WEIGHTS)
-    # Initialize a random population of weights
-    population = self.n * [None]  # Initialize population of random individuals
-    for i in range(0, self.n):
-        bit_string = random.randint(0, pow(2, numBits))  # Bitstring treated as unsigned integer
-        format_string = '0' + str(numBits) + 'b'
-        bit_string = format(bit_string, format_string)
-        ind = Genome(bit_string)
+    ga = GA(1)  # TODO resolve calculation of num_weights
+
+    # Initialize a random population of neural nets
+    population = ga.pop_size * [None]
+    for i in range(0, ga.pop_size):
+        ind = NeuralNet(NUM_INPUTS, NUM_OUTPUTS, NUM_HIDDEN, NUM_PER_HIDDEN)
         population[i] = ind
+
+    # Run for num_gens generations
+    for i in range(ga.num_gens):
+        # Call epoch at each step
+        population = ga.epoch(population)
+
+    # Output structure of fittest individual
+    print ga.best_genome
 
