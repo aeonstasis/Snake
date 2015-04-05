@@ -9,8 +9,6 @@ from constants import *
 
 # GLOBAL VARIABLES
 clock = pygame.time.Clock()
-HEADLESS = 0
-AI_FPS = 120 if HEADLESS else FRAMES_PER_SEC
 
 
 # STATE MANAGER
@@ -54,7 +52,7 @@ def main():
 
 
 # FITNESS FUNCTION
-def fitness(ann):
+def fitness(ann, headless=1):
     """
     Calculate the fitness function.
     :param ann: the ANN being represented.
@@ -64,8 +62,9 @@ def fitness(ann):
     pygame.display.set_caption("Snake")
 
     screen = None
+    ai_fps = 120 if headless else FRAMES_PER_SEC
 
-    if HEADLESS == 0:
+    if headless == 0:
         screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         screen.fill((0, 0, 0))
 
@@ -73,11 +72,11 @@ def fitness(ann):
     manager.go_to(PlayState())
 
     while not isinstance(manager.state, GameOverState):
-        clock.tick(AI_FPS)
+        clock.tick(ai_fps)
 
         manager.state.update()
 
-        if HEADLESS == 0:
+        if headless == 0:
             manager.state.render(screen)
             pygame.display.flip()
 
@@ -91,6 +90,6 @@ if __name__ == '__main__':
     # Test ANN interface
     """
     ann = NeuralNet(NUM_INPUTS, NUM_OUTPUTS, NUM_HIDDEN, NUM_PER_HIDDEN)
-    score = fitness(ann)
+    score = fitness(ann, 0)
     print(score)
     """

@@ -11,6 +11,8 @@ NUM_GENS = 100
 CROSS_RATE = 0.70
 MUTATE_RATE = 0.15
 
+HEADLESS = 1
+
 
 class Genome:
     """
@@ -36,11 +38,9 @@ class Genome:
         Returns the fitness of an individual genome. Calculates it once, then returns it when prompted again.
         :return: the genome's fitness
         """
-        if self.fitness is not None:
-            return self.fitness
-        else:
-            fitness = Snake.fitness(self.ann)
-            return fitness
+        if self.fitness is None:
+            self.fitness = Snake.fitness(self.ann, HEADLESS)
+        return self.fitness
 
     def __str__(self):
         """
@@ -146,7 +146,7 @@ class GA:
 
         # Identify current most fit individual
         for genome in old_population:
-            self.total_fitness += genome.fitness
+            self.total_fitness += genome.get_fitness()
             if self.best_genome is None or genome.get_fitness() > self.best_genome.get_fitness():
                 self.best_genome = genome
 
