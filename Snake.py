@@ -15,16 +15,17 @@ HEADLESS = 0
 
 # STATE MANAGER
 class StateManager(object):
-    def __init__(self, default_state=None):
+    def __init__(self, ann=None):
         """
         Initializes the state manager.
-        :param default_state: state to begin in
+        Contains "global" variables to hold neural network and score.
         """
+        self.ann = ann
+        self.score = 0  # used to determine fitness
+        self.moves = []  # used to track the moves made in the game for debugging purposes
+
         self.state = None
-        if default_state is None:
-            self.go_to(MenuState())
-        else:
-            self.go_to(default_state())
+        self.go_to(MenuState())
 
     def go_to(self, state):
         self.state = state
@@ -39,7 +40,7 @@ def main():
     screen.fill((0, 0, 0))
 
     running = True
-    manager = StateManager()  # Set to 1 to have ANN play
+    manager = StateManager()
 
     while running:
         clock.tick(FRAMES_PER_SEC)
@@ -54,31 +55,38 @@ def main():
 
 
 # FITNESS FUNCTION
-def fitness(weights):
+def fitness(ann):
     """
     Calculate the fitness function.
-    :param weights: weights of the ANN being represented.
-    :return: score of the ANN represented by the weights
+    :param ann: the ANN being represented.
+    :return: score of the ANN represented
     """
     pygame.init()
     pygame.display.set_caption("Snake")
-    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-    screen.fill((0, 0, 0))
 
-    manager = StateManager(PlayState)
-    while isinstance(manager.state, PlayState):
-        clock.tick(FRAMES_PER_SEC)
+    screen = None
+    if HEADLESS == 0:
+        screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+        screen.fill((0, 0, 0))
+
+    manager = StateManager(ann)
+    manager.go_to(MenuState())
+    while not isinstance(manager.state, GameOverState):
+        if HEADLESS == 0:
+            clock.tick(FRAMES_PER_SEC)
 
         manager.state.update()
-        if HEADLESS == 0:
-            manager.state.render(screen)
+        manager.state.render(screen)
 
     return manager.score
 
 
 # PROGRAM EXECUTION
 if __name__ == '__main__':
-    # main()
+    """
+    main()
+    """
     ann = NeuralNet(NUM_INPUTS, NUM_OUTPUTS, NUM_HIDDEN, NUM_PER_HIDDEN)
-    score = fitness(ann.get_weights())
+    score = fitness(ann)
     print(score)
+

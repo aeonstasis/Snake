@@ -10,7 +10,6 @@ from constants import *
 
 
 
-
 # STATE DEFINITIONS
 class State(object):
     def __init__(self):
@@ -94,6 +93,9 @@ class PlayState(State):
         self.board = Board()
         self.food = Food()
         self.initialized = True  # flag used for initial board generation
+
+        # FITNESS FUNCTION KILL SWITCH
+        self.moves_since_food = 0
 
         # PLAYER NAMES & SCORES
         self.font = pygame.font.SysFont(FONT, 24)
@@ -220,6 +222,9 @@ class PlayState(State):
         return next_cell != 0
 
     def render(self, screen):
+        if screen is None:
+            return
+
         # DRAW INITIAL BOARD
         if self.initialized:
             screen.fill(BLACK)
@@ -278,34 +283,43 @@ class PlayState(State):
 
         # UPDATE NEXT MOVE
         player.direction = self.get_move()
+        self.manager.moves.append(player.direction)
+        print player.direction  # DEBUG view moves made by ANN
 
         # PLAYER POSITION UPDATE
         row, column = player.update()
         valid = player.set_position(row, column)
+        self.moves_since_food += 1
+
+        # WALL/BOUNDS COLLISION CHECK
         if valid == -1 and player.direction != 'START':
             self.manager.go_to(GameOverState())
+        elif self.manager.ann is not None and self.moves_since_food >= 2 * NUM_ROWS * NUM_COLS:
+            self.manager.go_to(GameOverState())
 
-        # Remove tail end of snake if needed (only impacts grid)
+        # UPDATE SNAKE TAIL (GRID)
         delete = player.delete
         if delete[0] is not None and delete[1] is not None:
             position = delete[0]
             self.board.set_cell(position[0], position[1], EMPTY)
             player.position_set.remove(position)
 
-        # COLLISION CHECKING AND BOARD UPDATE
+        # SELF/FOOD COLLISION CHECK AND BOARD UPDATE
         food = self.food
-        collision = self.board.check_collision((row, column))
-        if collision == -1 and player.direction != 'START':
+        ate_food = self.board.check_collision((row, column))
+        if ate_food == -1 and player.direction != 'START':
+            self.manager.score = player.score
             self.manager.go_to(GameOverState())
         else:
             self.board.set_cell(row, column, player.number)
-            if collision == 1:
+            if ate_food == 1:
                 self.board.set_cell(food.position[0], food.position[1], EMPTY)
                 food.move()
                 while self.board.get_cell(food.position[0], food.position[1]) != EMPTY:
                     food.move()
                 player.score += food.score
                 player.length += 1
+                self.moves_since_food = 0
 
         # FOOD UPDATE
         self.board.set_cell(food.position[0], food.position[1], FOOD)
@@ -315,18 +329,7 @@ class PlayState(State):
         Get the next move to make. Next keypress if human player, output of neural network otherwise.
         :return: next direction to move in
         """
-        if self.manager.is_ann:
-            outputs = self.ann.update(self.ann_inputs())  # TODO retrieve outputs after updating ann
-            max_output = max(outputs)
-            if outputs[0] is max_output:
-                return 'LEFT'
-            elif outputs[1] is max_output:
-                return 'UP'
-            elif outputs[2] is max_output:
-                return 'DOWN'
-            elif outputs[3] is max_output:
-                return 'RIGHT'
-        else:
+        if self.manager.ann is None:
             keypress = pygame.key.get_pressed()
             if keypress[K_LEFT]:
                 return 'LEFT'
@@ -338,6 +341,17 @@ class PlayState(State):
                 return 'RIGHT'
             else:
                 return self.player.direction  # continue going in same direction
+        else:
+            outputs = self.manager.ann.update(self.ann_inputs())
+            max_output = max(outputs)
+            if outputs[0] is max_output:
+                return 'LEFT'
+            elif outputs[1] is max_output:
+                return 'UP'
+            elif outputs[2] is max_output:
+                return 'DOWN'
+            elif outputs[3] is max_output:
+                return 'RIGHT'
 
     def ann_inputs(self):
         """
@@ -406,13 +420,15 @@ class GameOverState(State):
         self.font = pygame.font.SysFont(FONT, 24)
         self.text = self.font.render("Game Over", True, WHITE)
         self.text_rect = self.text.get_rect()
-        self.dim = Dimmer(1)
-        self.shouldDim = 1
+        self.has_dimmed = 0
 
     def render(self, screen):
-        if self.shouldDim:
+        if screen is None:
+            return
+        if self.has_dimmed == 0:
+            self.dim = Dimmer(1)
             self.dim.dim(255 * 2 / 3)
-            self.shouldDim = 0
+            self.has_dimmed = 1
         text_rect = self.text_rect
         text_x = screen.get_width() / 2 - text_rect.width / 2
         text_y = screen.get_height() / 2 - text_rect.height / 2
@@ -425,7 +441,11 @@ class GameOverState(State):
         # self.dim.undim()
         for e in events:
             if e.type == KEYDOWN and e.key == K_RETURN:
+                self.manager.score = 0
                 self.manager.go_to(PlayState())
+            elif e.type == KEYDOWN and e.key == K_ESCAPE:
+                self.manager.score = 0
+                self.manager.go_to(MenuState())
 
 
 class Dimmer:
