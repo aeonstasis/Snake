@@ -22,7 +22,6 @@ class StateManager(object):
         """
         self.ann = ann
         self.score = 0  # used to determine fitness
-        self.moves = []  # used to track the moves made in the game for debugging purposes
 
         self.state = None
         self.go_to(MenuState())
@@ -65,18 +64,22 @@ def fitness(ann):
     pygame.display.set_caption("Snake")
 
     screen = None
+
     if HEADLESS == 0:
         screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         screen.fill((0, 0, 0))
 
     manager = StateManager(ann)
-    manager.go_to(MenuState())
+    manager.go_to(PlayState())
+
     while not isinstance(manager.state, GameOverState):
-        if HEADLESS == 0:
-            clock.tick(FRAMES_PER_SEC)
+        clock.tick(FRAMES_PER_SEC)
 
         manager.state.update()
-        manager.state.render(screen)
+
+        if HEADLESS == 0:
+            manager.state.render(screen)
+            pygame.display.flip()
 
     return manager.score
 
@@ -86,6 +89,8 @@ if __name__ == '__main__':
     """
     main()
     """
+
+    # Test ANN interface
     ann = NeuralNet(NUM_INPUTS, NUM_OUTPUTS, NUM_HIDDEN, NUM_PER_HIDDEN)
     score = fitness(ann)
     print(score)
