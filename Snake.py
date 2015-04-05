@@ -5,12 +5,12 @@ import sys
 
 from States import *
 from constants import *
-from NeuralNet import *
 
 
 # GLOBAL VARIABLES
 clock = pygame.time.Clock()
 HEADLESS = 0
+AI_FPS = 120 if HEADLESS else FRAMES_PER_SEC
 
 
 # STATE MANAGER
@@ -73,7 +73,7 @@ def fitness(ann):
     manager.go_to(PlayState())
 
     while not isinstance(manager.state, GameOverState):
-        clock.tick(FRAMES_PER_SEC)
+        clock.tick(AI_FPS)
 
         manager.state.update()
 
@@ -86,12 +86,11 @@ def fitness(ann):
 
 # PROGRAM EXECUTION
 if __name__ == '__main__':
-    """
     main()
-    """
 
     # Test ANN interface
+    """
     ann = NeuralNet(NUM_INPUTS, NUM_OUTPUTS, NUM_HIDDEN, NUM_PER_HIDDEN)
     score = fitness(ann)
     print(score)
-
+    """

@@ -43,7 +43,7 @@ class Genome:  # TODO figure out whether to integrate ann here
 
     def __str__(self):
         """
-        Pretty print the weights of the neuron.
+        Pretty print the weights of the neural network.
         """
 
 
@@ -127,24 +127,36 @@ class GA:
         Runs the GA for one generation, updating the population.
         :return: the new population
         """
-        for genome in old_population:  # Identify current most fit individual
+        self.total_fitness = 0  # Reset old total fitness
+
+        # Identify current most fit individual
+        for genome in old_population:
             self.total_fitness += genome.fitness
-            if best is None or genome.get_fitness() > best.get_fitness():
-                best = genome
+            if self.best_genome is None or genome.get_fitness() > self.best_genome.get_fitness():
+                self.best_genome = genome
 
-        self.avg_fitness = self.total_fitness / len(old_population)  # Record fitness value of population for run
-        self.best_fitness = best.get_fitness()
+        # Record fitness value parameters
+        self.avg_fitness = self.total_fitness / len(old_population)
+        self.best_fitness = self.best_genome.get_fitness()
 
+        # Generate next generation of individuals
         population_next = 0 * [None]
-        for j in range(self.pop_size // 2):  # Generate next generation of individuals
-            p_a = self.select(old_population, 2)  # Tournament select two parents
+        for j in range(self.pop_size // 2):
+            # Tournament select two parents
+            p_a = self.select(old_population, 2)
             p_b = self.select(old_population, 2)
-            (c_a, c_b) = self.crossover(p_a.copy(), p_b.copy())  # Create two children through uniform crossover
-            self.mutate(c_a)  # Mutate both children using uniform bit-flip
+
+            # Create two children through uniform crossover
+            (c_a, c_b) = self.crossover(p_a.copy(), p_b.copy())
+
+            # Mutate children using a form of bitflip mutation
+            self.mutate(c_a)
             self.mutate(c_b)
-            population_next.append(c_a)  # Add children to population pool for next gen
+
+            # Add children to population pool for next gen
+            population_next.append(c_a)
             population_next.append(c_b)
-        return population_next  # Advance one generation
+        return population_next
 
 
 # Runs the GA for the ANN Snake problem

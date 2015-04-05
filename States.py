@@ -11,6 +11,7 @@ from constants import *
 
 
 
+
 # STATE DEFINITIONS
 class State(object):
     def __init__(self):
@@ -284,7 +285,7 @@ class PlayState(State):
 
         # UPDATE NEXT MOVE
         player.direction = self.get_move()
-        print player.direction  # DEBUG view moves made by ANN
+        # print player.direction  # DEBUG view moves made by ANN
 
         # PLAYER POSITION UPDATE
         row, column = player.update()
