@@ -13,6 +13,7 @@ from constants import *
 
 
 
+
 # STATE DEFINITIONS
 class State(object):
     def __init__(self):
@@ -296,8 +297,9 @@ class PlayState(State):
         # WALL/BOUNDS COLLISION CHECK
         if valid == -1 and player.direction != 'START':
             self.manager.go_to(GameOverState())
+            self.end_game()
         elif self.manager.ann is not None and self.moves_since_food >= 2 * NUM_ROWS * NUM_COLS:
-            self.manager.go_to(GameOverState())
+            self.end_game()
 
         # UPDATE SNAKE TAIL (GRID)
         delete = player.delete
@@ -310,8 +312,7 @@ class PlayState(State):
         food = self.food
         ate_food = self.board.check_collision((row, column))
         if ate_food == -1 and player.direction != 'START':
-            self.manager.score = player.score
-            self.manager.go_to(GameOverState())
+            self.end_game()
         else:
             self.board.set_cell(row, column, player.number)
             if ate_food == 1:
@@ -325,6 +326,17 @@ class PlayState(State):
 
         # FOOD UPDATE
         self.board.set_cell(food.position[0], food.position[1], FOOD)
+
+    def end_game(self):
+        """
+        Transitions to game over state and updates the StateManager score for fitness function
+        to use.
+        """
+        # Fitness calculation
+        self.manager.fitness = 5 * self.player.score
+        self.manager.fitness += 0.1 * len(self.player.positions)
+
+        self.manager.go_to(GameOverState())
 
     def get_move(self):
         """
@@ -443,10 +455,10 @@ class GameOverState(State):
         # self.dim.undim()
         for e in events:
             if e.type == KEYDOWN and e.key == K_RETURN:
-                self.manager.score = 0
+                self.manager.fitness = 0
                 self.manager.go_to(PlayState())
             elif e.type == KEYDOWN and e.key == K_ESCAPE:
-                self.manager.score = 0
+                self.manager.fitness = 0
                 self.manager.go_to(MenuState())
 
 

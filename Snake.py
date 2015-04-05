@@ -19,7 +19,7 @@ class StateManager(object):
         Contains "global" variables to hold neural network and score.
         """
         self.ann = ann
-        self.score = 0  # used to determine fitness
+        self.fitness = 0
 
         self.state = None
         self.go_to(MenuState())
@@ -80,7 +80,7 @@ def fitness(ann, headless=1):
             manager.state.render(screen)
             pygame.display.flip()
 
-    return manager.score
+    return manager.fitness
 
 
 # PROGRAM EXECUTION
