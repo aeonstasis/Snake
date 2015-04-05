@@ -12,14 +12,15 @@ CROSS_RATE = 0.70
 MUTATE_RATE = 0.15
 
 
-class Genome:  # TODO figure out whether to integrate ann here
+class Genome:
     """
     Represents an individual in a population.
     In this case, the weights representing an individual neural net.
     """
 
-    def __init__(self, weights=None, fitness=None):
-        self.weights = weights
+    def __init__(self, ann=None, fitness=None):
+        assert isinstance(ann, NeuralNet), "Must initialize genome with an ANN"
+        self.ann = ann
         self.fitness = fitness
 
     def copy(self):
@@ -27,7 +28,7 @@ class Genome:  # TODO figure out whether to integrate ann here
         Return deep copy of an individual.
         :return: a deep copy
         """
-        copy = Genome(self.weights, self.fitness)
+        copy = Genome(self.ann, self.fitness)
         return copy
 
     def get_fitness(self):
@@ -38,13 +39,20 @@ class Genome:  # TODO figure out whether to integrate ann here
         if self.fitness is not None:
             return self.fitness
         else:
-            fitness = Snake.fitness(self.weights)
+            fitness = Snake.fitness(self.ann)
             return fitness
 
     def __str__(self):
         """
         Pretty print the weights of the neural network.
+
+        output = ""
+        for i in range(len(self.ann.layers)):
+            output += "Layer " + i + ": "
+            for neuron in self.ann.layers[i].neurons:
+                weights += neuron.weights
         """
+        return self.ann.get_weights()
 
 
 class GA:
@@ -68,7 +76,6 @@ class GA:
         self.mut_rate = mut_rate
         self.cross_rate = cross_rate
         self.genome_length = num_weights
-        self.genomes = None
 
         # Current population descriptors
         self.total_fitness = 0
@@ -98,29 +105,37 @@ class GA:
         Implements mutation, where weights may be changed.
         :param genome: genome in question
         """
-        weights = genome.weights
+        ann = genome.ann
+        weights = ann.get_weights()
         for i in range(len(weights)):
             if self.mut_rate >= random.random():
                 weights[i] += (random.random() * 2) - 1  # add delta noise in [-1, 1]
+        ann.set_weights(weights)
 
     def crossover(self, g1, g2):
         """
         Implement uniform crossover, given two parent individuals.
         Return two children constructed from the weights.
-        :type g1: Genome
-        :type g2: Genome
         :param g1: first parent
         :param g2: second parent
         :return: tuple containing two children genomes
         """
-        assert (len(g1.weights) == len(g2.weights))
+        g1_ann = g1.ann
+        g2_ann = g2.ann
+        g1_weights = g1_ann.get_weights()
+        g2_weights = g2_ann.get_weights()
 
-        for i in range(len(g1.weights)):
+        assert (len(g1_weights) == len(g2_weights))
+
+        for i in range(len(g1_weights)):
             if self.cross_rate >= random.random():
-                temp = g1.weights[i]
-                g1.weights[i] = g2.weights[i]
-                g2.weights[i] = temp
-        return Genome(g1.weights), Genome(g2.weights)
+                temp = g1_weights[i]
+                g1_weights[i] = g2_weights[i]
+                g2_weights[i] = temp
+
+        g1_ann.set_weights(g1_weights)
+        g2_ann.set_weights(g2_weights)
+        return Genome(g1_ann), Genome(g2_ann)
 
     def epoch(self, old_population):
         """
@@ -161,19 +176,28 @@ class GA:
 
 # Runs the GA for the ANN Snake problem
 def main():
-    ga = GA(1)  # TODO resolve calculation of num_weights
+    # Calculate number of weights
+    ga = GA(NeuralNet(NUM_INPUTS, NUM_OUTPUTS, NUM_HIDDEN, NUM_PER_HIDDEN).num_weights)
 
     # Initialize a random population of neural nets
     population = ga.pop_size * [None]
     for i in range(0, ga.pop_size):
         ind = NeuralNet(NUM_INPUTS, NUM_OUTPUTS, NUM_HIDDEN, NUM_PER_HIDDEN)
-        population[i] = ind
+        population[i] = Genome(ind)
 
     # Run for num_gens generations
     for i in range(ga.num_gens):
         # Call epoch at each step
         population = ga.epoch(population)
 
+        # Print population characteristics
+        print "Gen " + i + ": " + "best: " + ga.best_fitness + \
+              " avg: " + ga.avg_fitness + " worst:" + ga.worst_fitness
+
     # Output structure of fittest individual
-    print ga.best_genome
+    print "\n" + ga.best_genome
+
+# Run the GA
+if __name__ == '__main__':
+    main()
 
