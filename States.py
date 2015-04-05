@@ -14,6 +14,7 @@ from constants import *
 
 
 
+
 # STATE DEFINITIONS
 class State(object):
     def __init__(self):
@@ -296,7 +297,6 @@ class PlayState(State):
 
         # WALL/BOUNDS COLLISION CHECK
         if valid == -1 and player.direction != 'START':
-            self.manager.go_to(GameOverState())
             self.end_game()
         elif self.manager.ann is not None and self.moves_since_food >= 2 * NUM_ROWS * NUM_COLS:
             self.end_game()

@@ -121,12 +121,10 @@ class GA:
         Return two children constructed from the weights.
         :param g1: first parent
         :param g2: second parent
-        :return: tuple containing two children genomes
+        :return: tuple containing two children sets of weights
         """
-        g1_ann = g1.ann
-        g2_ann = g2.ann
-        g1_weights = g1_ann.get_weights()
-        g2_weights = g2_ann.get_weights()
+        g1_weights = g1.ann.get_weights()
+        g2_weights = g2.ann.get_weights()
 
         assert (len(g1_weights) == len(g2_weights))
 
@@ -136,9 +134,9 @@ class GA:
                 g1_weights[i] = g2_weights[i]
                 g2_weights[i] = temp
 
-        g1_ann.set_weights(g1_weights)
-        g2_ann.set_weights(g2_weights)
-        return Genome(g1_ann), Genome(g2_ann)
+        g1.ann.set_weights(g1_weights)
+        g2.ann.set_weights(g2_weights)
+        return g1_weights, g2_weights
 
     def epoch(self, old_population):
         """
@@ -174,7 +172,7 @@ class GA:
             # Add children to population pool for next gen
             population_next.append(c_a)
             population_next.append(c_b)
-        return population_next
+        return population
 
 
 # Runs the GA for the ANN Snake problem
@@ -198,7 +196,7 @@ def main():
               " avg - " + str(ga.avg_fitness) + " worst - " + str(ga.worst_fitness)
 
     # Output structure of fittest individual
-    print "\n" + ga.best_genome
+    print "\n" + ga.best_genome.__str__
 
 # Run the GA
 if __name__ == '__main__':

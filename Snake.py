@@ -87,7 +87,7 @@ def fitness(ann, headless=1):
 if __name__ == '__main__':
     main()
 
-    # Test ANN interface
+    # Test ANN produced from GA
     """
     ann = NeuralNet(NUM_INPUTS, NUM_OUTPUTS, NUM_HIDDEN, NUM_PER_HIDDEN)
     score = fitness(ann, 0)
