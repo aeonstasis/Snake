@@ -10,6 +10,7 @@ from constants import *
 
 
 
+
 # STATE DEFINITIONS
 class State(object):
     def __init__(self):
@@ -87,11 +88,6 @@ class OptionsState(State):
 class PlayState(State):
     def __init__(self):
         super(PlayState, self).__init__()
-
-        # ANN (optional)
-        self.is_ann = 0
-        # if self.manager.is_ann:
-        # self.ann = NeuralNet(NUM_INPUTS, NUM_OUTPUTS, NUM_HIDDEN, NUM_PER_HIDDEN)
 
         # PLAYER, BOARD, FOOD
         self.player = Player((NUM_ROWS // 2, NUM_COLS // 2), 'START', BLUE, 2)
@@ -320,7 +316,7 @@ class PlayState(State):
         :return: next direction to move in
         """
         if self.manager.is_ann:
-            outputs = self.ann.update(self.ann_inputs())  # retrieve outputs after updating ann
+            outputs = self.ann.update(self.ann_inputs())  # TODO retrieve outputs after updating ann
             max_output = max(outputs)
             if outputs[0] is max_output:
                 return 'LEFT'
@@ -358,17 +354,17 @@ class PlayState(State):
 
         direction = self.player.direction
         if direction == 'UP':
-            outputs = [dist_x, dist_y, left, up, right]
+            inputs = [dist_x, dist_y, left, up, right]
         elif direction == 'LEFT':
-            outputs = [dist_x, dist_y, down, left, up]
+            inputs = [dist_x, dist_y, down, left, up]
         elif direction == 'DOWN':
-            outputs = [dist_x, dist_y, right, down, left]
+            inputs = [dist_x, dist_y, right, down, left]
         elif direction == 'RIGHT':
-            outputs = [dist_x, dist_y, up, right, down]
+            inputs = [dist_x, dist_y, up, right, down]
         else:
-            outputs = [dist_x, dist_y, left, up, right]
+            inputs = [dist_x, dist_y, left, up, right]
 
-        return outputs
+        return inputs
 
     def handle_events(self, events):
         for e in events:

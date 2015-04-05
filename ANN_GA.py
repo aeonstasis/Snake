@@ -1,8 +1,10 @@
 __author__ = 'Aaron'
 
 import random
-
 from math import *
+
+from constants import *
+import Snake
 
 
 # Default tuning parameters
@@ -18,9 +20,9 @@ class Genome:
     In this case, the weights representing an individual neural net.
     """
 
-    def __init__(self, weights=None):
+    def __init__(self, weights=None, fitness=None):
         self.weights = weights
-        self.fitness = None
+        self.fitness = fitness
 
     def copy(self):
         """
@@ -38,7 +40,7 @@ class Genome:
         if self.fitness is not None:
             return self.fitness
         else:
-            fitness = Snake.fitness(self.weights)  # TODO fix the Snake class import
+            fitness = Snake.fitness(self.weights)
             return fitness
 
 
@@ -47,7 +49,6 @@ class GA:
     Encapsulates the methods needed to solve an optimization problem using a genetic
     algorithm.
     """
-
     def __init__(self, num_weights, pop_size=POP_SIZE, mut_rate=MUTATE_RATE, cross_rate=CROSS_RATE):
         """
         Initialize the genetic algorithm to interface to the ANN.
@@ -94,28 +95,26 @@ class GA:
         weights = genome.weights
         for i in range(len(weights)):
             if self.mut_rate >= random.random():
-                bit = 1 if weights[i] == 0 else 1
-                weights = weights[0:i] + str(bit) + weights[i + 1:]
+                weights[i] += (random.random() * 2) - 1  # add delta noise in [-1, 1]
 
-    def crossover(self, e1, e2):
+    def crossover(self, g1, g2):
         """
         Implement uniform crossover, given two parent individuals.
-        Return two children constructed from the weightss.
-        :type e1: Genome
-        :type e2: Genome
-        :param e1: first parent
-        :param e2: second parent
-        :return: tuple containing two weights bitstrings
+        Return two children constructed from the weights.
+        :type g1: Genome
+        :type g2: Genome
+        :param g1: first parent
+        :param g2: second parent
+        :return: tuple containing two children genomes
         """
-        assert (isinstance(e1, Genome) and isinstance(e2, Genome))
-        assert (len(e1.weights) == len(e2.weights))
+        assert (len(g1.weights) == len(g2.weights))
 
-        for i in range(len(e1.weights)):
+        for i in range(len(g1.weights)):
             if self.cross_rate >= random.random():
-                temp = e1.weights[i]
-                e1.set_weights(e1.weights[0:i] + e2.weights[i] + e1.weights[i + 1:])
-                e2.set_weights(e2.weights[0:i] + temp + e2.weights[i + 1:])
-        return Genome(e1.weights), Genome(e2.weights)
+                temp = g1.weights[i]
+                g1.weights[i] = g2.weights[i]
+                g2.weights[i] = temp
+        return Genome(g1.weights), Genome(g2.weights)
 
     def optimize(self):
         """
@@ -123,16 +122,6 @@ class GA:
         optimization problem.
         :return: the solution to the optimization problem
         """
-        population = self.n * [None]  # Initialize population of random individuals
-        for i in range(0, self.n):
-            bit_string = random.randint(0, pow(2, numBits))  # Bitstring treated as unsigned integer
-            format_string = '0' + str(numBits) + 'b'
-            bit_string = format(bit_string, format_string)
-            ind = Genome(bit_string)
-            population[i] = ind
-
-        best = None
-
         # Run for num_gens generations
         for i in range(NUM_GENS):  # Control number of generations
             total_fitness = 0
@@ -169,8 +158,13 @@ class GA:
 
 # Runs the GA for the ANN Snake problem
 def main():
-
-# Initialize a random population of weights
-
-#
+    ga = GA(NUM_WEIGHTS)
+    # Initialize a random population of weights
+    population = self.n * [None]  # Initialize population of random individuals
+    for i in range(0, self.n):
+        bit_string = random.randint(0, pow(2, numBits))  # Bitstring treated as unsigned integer
+        format_string = '0' + str(numBits) + 'b'
+        bit_string = format(bit_string, format_string)
+        ind = Genome(bit_string)
+        population[i] = ind
 

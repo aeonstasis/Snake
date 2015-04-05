@@ -5,6 +5,7 @@ import sys
 
 from States import *
 from constants import *
+from NeuralNet import *
 
 
 # GLOBAL VARIABLES
@@ -14,17 +15,16 @@ HEADLESS = 0
 
 # STATE MANAGER
 class StateManager(object):
-    def __init__(self, is_ann=0):
+    def __init__(self, default_state=None):
         """
         Initializes the state manager.
-        :param is_ann: If set to 1, will use the neural network to play the game.
+        :param default_state: state to begin in
         """
         self.state = None
-        if is_ann:
-            self.go_to(PlayState())
-            self.score = 0
-        else:
+        if default_state is None:
             self.go_to(MenuState())
+        else:
+            self.go_to(default_state())
 
     def go_to(self, state):
         self.state = state
@@ -65,8 +65,8 @@ def fitness(weights):
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     screen.fill((0, 0, 0))
 
-    manager = StateManager(0)  # Set to 1 to have ANN play
-    while manager.state != GameOverState:
+    manager = StateManager(PlayState)
+    while isinstance(manager.state, PlayState):
         clock.tick(FRAMES_PER_SEC)
 
         manager.state.update()
@@ -78,4 +78,7 @@ def fitness(weights):
 
 # PROGRAM EXECUTION
 if __name__ == '__main__':
-    main()
+    # main()
+    ann = NeuralNet(NUM_INPUTS, NUM_OUTPUTS, NUM_HIDDEN, NUM_PER_HIDDEN)
+    score = fitness(ann.get_weights())
+    print(score)
