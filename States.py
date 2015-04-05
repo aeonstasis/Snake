@@ -12,6 +12,7 @@ from constants import *
 
 
 
+
 # STATE DEFINITIONS
 class State(object):
     def __init__(self):
@@ -248,7 +249,6 @@ class PlayState(State):
             transition = delete[1]
             self.draw_cell(row, column, DEFAULT_COLOR, screen)
             # PlayState.fill_gap((row, column), transition, MARGIN_COLOR, screen)
-            player.delete = None, None
 
         old_center = food.old_center
         if (old_center is not None) and (not Board.cell_equals(old_center, food.center)):
@@ -282,6 +282,7 @@ class PlayState(State):
 
     def update(self):
         player = self.player
+        player.delete = None, None
 
         # UPDATE NEXT MOVE
         player.direction = self.get_move()

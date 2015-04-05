@@ -22,6 +22,7 @@ class Genome:
 
     def __init__(self, ann=None, fitness=None):
         assert isinstance(ann, NeuralNet), "Must initialize genome with an ANN"
+        self.mutated = False  # Update fitness when mutated
         self.ann = ann
         self.fitness = fitness
 
@@ -38,8 +39,9 @@ class Genome:
         Returns the fitness of an individual genome. Calculates it once, then returns it when prompted again.
         :return: the genome's fitness
         """
-        if self.fitness is None:
+        if self.fitness is None or self.mutated:
             self.fitness = Snake.fitness(self.ann, HEADLESS)
+            self.mutated = False
         return self.fitness
 
     def __str__(self):
@@ -111,6 +113,7 @@ class GA:
             if self.mut_rate >= random.random():
                 weights[i] += (random.random() * 2) - 1  # add delta noise in [-1, 1]
         ann.set_weights(weights)
+        genome.mutated = True
 
     def crossover(self, g1, g2):
         """
@@ -144,7 +147,7 @@ class GA:
         """
         self.total_fitness = 0  # Reset old total fitness
 
-        # Identify current most fit individual
+        # Identify current most fit individual and perform fitness calculations
         for genome in old_population:
             self.total_fitness += genome.get_fitness()
             if self.best_genome is None or genome.get_fitness() > self.best_genome.get_fitness():
@@ -191,8 +194,8 @@ def main():
         population = ga.epoch(population)
 
         # Print population characteristics
-        print "Gen " + i + ": " + "best: " + ga.best_fitness + \
-              " avg: " + ga.avg_fitness + " worst:" + ga.worst_fitness
+        print "Gen " + str(i) + ": " + "best - " + str(ga.best_fitness) + \
+              " avg - " + str(ga.avg_fitness) + " worst - " + str(ga.worst_fitness)
 
     # Output structure of fittest individual
     print "\n" + ga.best_genome
