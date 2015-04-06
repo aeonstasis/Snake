@@ -7,7 +7,7 @@ import Snake
 
 # Default tuning parameters
 POP_SIZE = 30
-NUM_GENS = 150
+NUM_GENS = 100
 CROSS_RATE = 0.70
 MUTATE_RATE = 0.15
 
@@ -162,7 +162,7 @@ class GA:
                 self.best_genome.fitness = fitness
 
         # Display best genome
-        Snake.fitness(self.best_genome.weights, 0)
+        # Snake.fitness(self.best_genome.weights, 0)
 
         # Record fitness value parameters
         self.avg_fitness = self.total_fitness / len(old_population)
@@ -183,8 +183,8 @@ class GA:
             population_next.append(self.mutate(c_b))
 
         # Override two weights with the current best (elitism)
-        # population_next[0] = self.best_genome.copy()
-        #population_next[1] = self.best_genome.copy()
+        population_next[0] = self.best_genome.copy()
+        population_next[1] = self.best_genome.copy()
 
         return population_next
 
@@ -214,7 +214,6 @@ def main():
 
     # Output structure of fittest individual
     print best_genomes[-1]
-    Snake.fitness(ga.best_genome.weights, 0)
 
 # Run the GA
 if __name__ == '__main__':

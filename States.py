@@ -21,6 +21,8 @@ from constants import *
 
 
 
+
+
 # STATE DEFINITIONS
 class State(object):
     def __init__(self):
@@ -342,8 +344,8 @@ class PlayState(State):
         self.manager.fitness = 10 * self.player.score
 
         dist_x, dist_y = Board.distance_to(self.player.get_position(), self.food.position)
-        self.manager.fitness += NUM_ROWS - abs(dist_x)
-        self.manager.fitness += NUM_COLS - abs(dist_y)
+        self.manager.fitness += NUM_ROWS - abs(dist_y)
+        self.manager.fitness += NUM_COLS - abs(dist_x)
 
         self.manager.go_to(GameOverState())
 
