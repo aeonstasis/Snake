@@ -7,11 +7,11 @@ import Snake
 
 # Default tuning parameters
 POP_SIZE = 20
-NUM_GENS = 100
-CROSS_RATE = 0.50
+NUM_GENS = 150
+CROSS_RATE = 0.60
 MUTATE_RATE = 0.15
 
-HEADLESS = 0
+HEADLESS = 1
 NUM_WEIGHTS = NeuralNet(NUM_INPUTS, NUM_OUTPUTS, NUM_HIDDEN, NUM_PER_HIDDEN).num_weights
 
 
@@ -161,6 +161,9 @@ class GA:
                 self.best_genome = genome.copy()
                 self.best_genome.fitness = fitness
 
+        # Display best genome
+        Snake.fitness(self.best_genome.weights, 0)
+
         # Record fitness value parameters
         self.avg_fitness = self.total_fitness / len(old_population)
         self.best_fitness = self.best_genome.get_fitness()
@@ -180,8 +183,8 @@ class GA:
             population_next.append(self.mutate(c_b))
 
         # Override two weights with the current best (elitism)
-        population_next[0] = self.best_genome.copy()
-        population_next[1] = self.best_genome.copy()
+        # population_next[0] = self.best_genome.copy()
+        #population_next[1] = self.best_genome.copy()
 
         return population_next
 

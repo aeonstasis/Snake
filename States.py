@@ -20,6 +20,7 @@ from constants import *
 
 
 
+
 # STATE DEFINITIONS
 class State(object):
     def __init__(self):
@@ -99,7 +100,8 @@ class PlayState(State):
         super(PlayState, self).__init__()
 
         # PLAYER, BOARD, FOOD
-        self.player = Player((NUM_ROWS // 2, NUM_COLS // 2), 'START', BLUE, 2)
+        positions = [(NUM_ROWS // 2, NUM_COLS // 2), (NUM_ROWS // 2, NUM_COLS // 2 + 1)]
+        self.player = Player(positions, 'START', BLUE, 2)
         self.board = Board()
         self.food = Food()
         self.initialized = True  # flag used for initial board generation
@@ -293,7 +295,6 @@ class PlayState(State):
 
         # UPDATE NEXT MOVE
         player.direction = self.get_move()
-        # print player.direction  # DEBUG view moves made by ANN
 
         # PLAYER POSITION UPDATE
         row, column = player.update()
@@ -338,13 +339,11 @@ class PlayState(State):
         to use.
         """
         # Fitness calculation
-        self.manager.fitness = 5 * self.player.score
+        self.manager.fitness = 10 * self.player.score
 
         dist_x, dist_y = Board.distance_to(self.player.get_position(), self.food.position)
         self.manager.fitness += NUM_ROWS - abs(dist_x)
         self.manager.fitness += NUM_COLS - abs(dist_y)
-
-        self.manager.fitness -= self.moves_since_food // 10
 
         self.manager.go_to(GameOverState())
 

@@ -4,12 +4,12 @@ __author__ = 'Aaron'
 # PLAYER DEFINITION
 class Player():
     def __init__(self, start_position, direction, player_color, player_number):
-        self.positions = [start_position]
+        self.positions = list(start_position)
         self.color = player_color
         self.direction = direction
         self.number = player_number
 
-        self.position_set = set(self.positions)
+        self.position_set = set(position for position in self.positions)
         self.transitions = []
         self.delete = None, None
         self.length = 1
