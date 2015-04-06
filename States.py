@@ -19,6 +19,7 @@ from constants import *
 
 
 
+
 # STATE DEFINITIONS
 class State(object):
     def __init__(self):
@@ -302,7 +303,7 @@ class PlayState(State):
         # WALL/BOUNDS COLLISION CHECK
         if valid == -1 and player.direction != 'START':
             self.end_game()
-        elif self.manager.ann is not None and self.moves_since_food >= 2 * NUM_ROWS * NUM_COLS:
+        elif self.manager.ann is not None and self.moves_since_food >= (NUM_ROWS * NUM_COLS) // 2:
             self.end_game()
 
         # UPDATE SNAKE TAIL (GRID)
@@ -342,6 +343,8 @@ class PlayState(State):
         dist_x, dist_y = Board.distance_to(self.player.get_position(), self.food.position)
         self.manager.fitness += NUM_ROWS - abs(dist_x)
         self.manager.fitness += NUM_COLS - abs(dist_y)
+
+        self.manager.fitness -= self.moves_since_food // 10
 
         self.manager.go_to(GameOverState())
 
