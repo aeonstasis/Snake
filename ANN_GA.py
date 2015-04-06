@@ -156,23 +156,31 @@ class GA:
         self.best_fitness = self.best_genome.get_fitness()
 
         # Generate next generation of individuals
-        population_next = 0 * [None]
-        for j in range(self.pop_size // 2):
+        population_next = 0 * [None]  # Only holds weights, then put them back into current pop
+        for i in range(self.pop_size // 2):
             # Tournament select two parents
             p_a = self.select(old_population, 2)
             p_b = self.select(old_population, 2)
 
             # Create two children through uniform crossover
-            (c_a, c_b) = self.crossover(p_a.copy(), p_b.copy())
-
-            # Mutate children using a form of bitflip mutation
-            self.mutate(c_a)
-            self.mutate(c_b)
+            (c_a_weights, c_b_weights) = self.crossover(p_a, p_b)
 
             # Add children to population pool for next gen
-            population_next.append(c_a)
-            population_next.append(c_b)
-        return population
+            population_next.append(c_a_weights)
+            population_next.append(c_b_weights)
+
+        # Place weights in existing NeuralNet holders
+        for i in range(self.pop_size):
+            old_population[i].ann.set_weights(population_next[i])
+            self.mutate(old_population[i])
+
+        # Override two weights with the current best (elitism)
+        """
+        old_population[0].ann.set_weights(self.best_genome.ann.get_weights())
+        old_population[1].ann.set_weights(self.best_genome.ann.get_weights())
+        """
+
+        return old_population
 
 
 # Runs the GA for the ANN Snake problem
@@ -186,17 +194,22 @@ def main():
         ind = NeuralNet(NUM_INPUTS, NUM_OUTPUTS, NUM_HIDDEN, NUM_PER_HIDDEN)
         population[i] = Genome(ind)
 
+    # Store best genome for each generation
+    best_genomes = []
+
     # Run for num_gens generations
     for i in range(ga.num_gens):
         # Call epoch at each step
         population = ga.epoch(population)
+        best_genomes.append(ga.best_genome.ann.get_weights())
 
         # Print population characteristics
         print "Gen " + str(i) + ": " + "best - " + str(ga.best_fitness) + \
-              " avg - " + str(ga.avg_fitness) + " worst - " + str(ga.worst_fitness)
+              ", avg - " + str(ga.avg_fitness)
 
     # Output structure of fittest individual
-    print "\n" + ga.best_genome.__str__
+    print best_genomes
+    print ga.best_genome.__str__
 
 # Run the GA
 if __name__ == '__main__':
