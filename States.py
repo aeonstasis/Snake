@@ -10,19 +10,6 @@ from constants import *
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 # STATE DEFINITIONS
 class State(object):
     def __init__(self):
@@ -102,8 +89,7 @@ class PlayState(State):
         super(PlayState, self).__init__()
 
         # PLAYER, BOARD, FOOD
-        positions = [(NUM_ROWS // 2, NUM_COLS // 2), (NUM_ROWS // 2, NUM_COLS // 2 + 1)]
-        self.player = Player(positions, 'START', BLUE, 2)
+        self.player = Player((NUM_ROWS // 2, NUM_COLS // 2), 'START', BLUE, 2)
         self.board = Board()
         self.food = Food()
         self.initialized = True  # flag used for initial board generation
