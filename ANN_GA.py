@@ -7,11 +7,11 @@ import Snake
 
 # Default tuning parameters
 POP_SIZE = 20
-NUM_GENS = 50
-CROSS_RATE = 0.70
+NUM_GENS = 100
+CROSS_RATE = 0.50
 MUTATE_RATE = 0.15
 
-HEADLESS = 1
+HEADLESS = 0
 NUM_WEIGHTS = NeuralNet(NUM_INPUTS, NUM_OUTPUTS, NUM_HIDDEN, NUM_PER_HIDDEN).num_weights
 
 
@@ -35,7 +35,7 @@ class Genome:
         Return deep copy of an individual.
         :return: a deep copy
         """
-        copy = Genome(self.weights, self.fitness)
+        copy = Genome(self.weights, None)
         return copy
 
     def get_fitness(self):
@@ -44,14 +44,14 @@ class Genome:
         :return: the genome's fitness
         """
         if self.fitness is None:
-            self.fitness = self.calc_fitness()
+            self.recalculate_fitness()
         return self.fitness
 
-    def calc_fitness(self):
+    def recalculate_fitness(self):
         """
         Calculates the fitness of an individual genome.
         """
-        return Snake.fitness(self.weights, HEADLESS)
+        self.fitness = Snake.fitness(self.weights, HEADLESS)
 
     def __str__(self):
         """
@@ -107,7 +107,7 @@ class GA:
         best = pop_subset[random.randrange(0, len(pop_subset))]
         for i in range(1, t):
             next_ind = pop_subset[random.randrange(0, len(pop_subset))]
-            if next_ind.fitness > best.fitness:
+            if next_ind.get_fitness() > best.get_fitness():
                 best = next_ind
         return best
 
@@ -122,7 +122,7 @@ class GA:
         for i in range(NUM_WEIGHTS):
             if self.mut_rate >= random.random():
                 weights[i] += (random.random() * 2) - 1  # add delta noise in [-1, 1]
-        new_genome.fitness = new_genome.calc_fitness()
+
         return new_genome
 
     def crossover(self, g1, g2):
@@ -144,9 +144,6 @@ class GA:
                 c1.weights[i] = c2.weights[i]
                 c2.weights[i] = temp
 
-        c1.fitness = c1.calc_fitness()
-        c2.fitness = c2.calc_fitness()
-
         return c1, c2
 
     def epoch(self, old_population):
@@ -160,7 +157,9 @@ class GA:
         for genome in old_population:
             self.total_fitness += genome.get_fitness()
             if self.best_genome is None or genome.get_fitness() > self.best_genome.get_fitness():
+                fitness = genome.get_fitness()
                 self.best_genome = genome.copy()
+                self.best_genome.fitness = fitness
 
         # Record fitness value parameters
         self.avg_fitness = self.total_fitness / len(old_population)
@@ -177,16 +176,14 @@ class GA:
             (c_a, c_b) = self.crossover(p_a, p_b)
 
             # Add children to population pool for next gen
-            population_next.append(c_a)
-            population_next.append(c_b)
+            population_next.append(self.mutate(c_a))
+            population_next.append(self.mutate(c_b))
 
         # Override two weights with the current best (elitism)
-        """
-        old_population[0].ann.set_weights(self.best_genome.ann.get_weights())
-        old_population[1].ann.set_weights(self.best_genome.ann.get_weights())
-        """
+        population_next[0] = self.best_genome.copy()
+        population_next[1] = self.best_genome.copy()
 
-        return old_population
+        return population_next
 
 
 # Runs the GA for the ANN Snake problem
@@ -205,7 +202,7 @@ def main():
     # Run for num_gens generations
     for i in range(ga.num_gens):
         # Call epoch at each step
-        population = ga.epoch(population)
+        population = list(ga.epoch(population))
         best_genomes.append(ga.best_genome.weights)
 
         # Print population characteristics
@@ -213,8 +210,8 @@ def main():
               ", avg - " + str(ga.avg_fitness)
 
     # Output structure of fittest individual
-    print best_genomes
-    print ga.best_genome.__str__
+    print best_genomes[-1]
+    Snake.fitness(ga.best_genome.weights, 0)
 
 # Run the GA
 if __name__ == '__main__':

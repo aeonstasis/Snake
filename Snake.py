@@ -12,6 +12,7 @@ from NeuralNet import *
 clock = pygame.time.Clock()
 ann = NeuralNet(NUM_INPUTS, NUM_OUTPUTS, NUM_HIDDEN, NUM_PER_HIDDEN)
 
+
 # STATE MANAGER
 class StateManager(object):
     def __init__(self, ann=None):
@@ -65,7 +66,6 @@ def fitness(weights, headless=1):
     pygame.display.set_caption("Snake")
 
     screen = None
-    ai_fps = 120 if headless else FRAMES_PER_SEC
 
     if headless == 0:
         screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -75,7 +75,8 @@ def fitness(weights, headless=1):
     manager.go_to(PlayState())
 
     while not isinstance(manager.state, GameOverState):
-        clock.tick(ai_fps)
+        if headless == 0:
+            clock.tick(FRAMES_PER_SEC)
 
         manager.state.update()
 
@@ -91,11 +92,11 @@ if __name__ == '__main__':
     # main()
 
     # Test ANN produced from GA
-    best_weights = ([0.7986857139873349, 0.17580650976454404, 0.40308316205974803, -0.05788492025228664,
-                     -1.7217180817441924, 0.06459429037369824, -0.7281467389549743, 1.6084745036809662,
-                     0.04988494877801131, -0.045405613571901204, -1.4008008275559443, -0.25691494229359346,
-                     3.533971541240774, 1.214817359571597, -0.2644190297848732, 3.095122855541602,
-                     -1.2854250764912705, -0.2475636733260691, 2.523655582279237, 1.2254136885302618,
-                     5.514600694104605, -2.4350228323947434, -1.2428349618364274, -0.028879797534371865])
+    best_weights = ([-11.821244852818976, -2.20180348221581, -3.1432738436821492, -1.846636210039, 16.088523601553067,
+                     -5.078935578783578, -3.472459234268853, 18.849961330749537, 5.494860806469014, -8.688621882024375,
+                     -5.856720526530262, 1.2341642990084858, 6.232410148602231, 5.448576709585462, 3.481965245895725,
+                     -4.0643458346427535, -0.34901987435450654, -0.8664047204723968, 10.546458017161697,
+                     2.312698770853382, -2.652342554395508, -11.135443022979118, 2.5112338176940145,
+                     -2.797735846264893])
     fitness(best_weights, 0)
 
