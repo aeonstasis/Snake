@@ -6,9 +6,9 @@ import Snake
 
 
 # Default tuning parameters
-POP_SIZE = 20
+POP_SIZE = 30
 NUM_GENS = 150
-CROSS_RATE = 0.60
+CROSS_RATE = 0.70
 MUTATE_RATE = 0.15
 
 HEADLESS = 1
