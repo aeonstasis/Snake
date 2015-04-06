@@ -15,6 +15,8 @@ from constants import *
 
 
 
+
+
 # STATE DEFINITIONS
 class State(object):
     def __init__(self):
@@ -333,8 +335,7 @@ class PlayState(State):
         to use.
         """
         # Fitness calculation
-        self.manager.fitness = 5 * self.player.score
-        self.manager.fitness += 0.1 * len(self.player.positions)
+        self.manager.fitness = self.player.score
 
         self.manager.go_to(GameOverState())
 

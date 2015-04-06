@@ -7,11 +7,12 @@ import Snake
 
 # Default tuning parameters
 POP_SIZE = 20
-NUM_GENS = 100
+NUM_GENS = 50
 CROSS_RATE = 0.70
 MUTATE_RATE = 0.15
 
 HEADLESS = 1
+NUM_WEIGHTS = NeuralNet(NUM_INPUTS, NUM_OUTPUTS, NUM_HIDDEN, NUM_PER_HIDDEN).num_weights
 
 
 class Genome:
@@ -20,10 +21,13 @@ class Genome:
     In this case, the weights representing an individual neural net.
     """
 
-    def __init__(self, ann=None, fitness=None):
-        assert isinstance(ann, NeuralNet), "Must initialize genome with an ANN"
-        self.mutated = False  # Update fitness when mutated
-        self.ann = ann
+    def __init__(self, weights=None, fitness=None):
+        # Set weights
+        if weights is None:
+            self.weights = [(random.uniform(0, 1) * 2) - 1 for _ in range(NUM_WEIGHTS)]
+        else:
+            self.weights = weights
+
         self.fitness = fitness
 
     def copy(self):
@@ -31,7 +35,7 @@ class Genome:
         Return deep copy of an individual.
         :return: a deep copy
         """
-        copy = Genome(self.ann, self.fitness)
+        copy = Genome(self.weights, self.fitness)
         return copy
 
     def get_fitness(self):
@@ -39,10 +43,15 @@ class Genome:
         Returns the fitness of an individual genome. Calculates it once, then returns it when prompted again.
         :return: the genome's fitness
         """
-        if self.fitness is None or self.mutated:
-            self.fitness = Snake.fitness(self.ann, HEADLESS)
-            self.mutated = False
+        if self.fitness is None:
+            self.fitness = self.calc_fitness()
         return self.fitness
+
+    def calc_fitness(self):
+        """
+        Calculates the fitness of an individual genome.
+        """
+        return Snake.fitness(self.weights, HEADLESS)
 
     def __str__(self):
         """
@@ -54,7 +63,7 @@ class Genome:
             for neuron in self.ann.layers[i].neurons:
                 weights += neuron.weights
         """
-        return self.ann.get_weights()
+        return self.weights
 
 
 class GA:
@@ -106,14 +115,15 @@ class GA:
         """
         Implements mutation, where weights may be changed.
         :param genome: genome in question
+        :return: a reference to a new mutated Genome
         """
-        ann = genome.ann
-        weights = ann.get_weights()
-        for i in range(len(weights)):
+        new_genome = genome.copy()
+        weights = new_genome.weights
+        for i in range(NUM_WEIGHTS):
             if self.mut_rate >= random.random():
                 weights[i] += (random.random() * 2) - 1  # add delta noise in [-1, 1]
-        ann.set_weights(weights)
-        genome.mutated = True
+        new_genome.fitness = new_genome.calc_fitness()
+        return new_genome
 
     def crossover(self, g1, g2):
         """
@@ -123,20 +133,21 @@ class GA:
         :param g2: second parent
         :return: tuple containing two children sets of weights
         """
-        g1_weights = g1.ann.get_weights()
-        g2_weights = g2.ann.get_weights()
+        c1 = g1.copy()
+        c2 = g2.copy()
 
-        assert (len(g1_weights) == len(g2_weights))
+        assert (len(c1.weights) == len(c2.weights))
 
-        for i in range(len(g1_weights)):
+        for i in range(len(c1.weights)):
             if self.cross_rate >= random.random():
-                temp = g1_weights[i]
-                g1_weights[i] = g2_weights[i]
-                g2_weights[i] = temp
+                temp = c1.weights[i]
+                c1.weights[i] = c2.weights[i]
+                c2.weights[i] = temp
 
-        g1.ann.set_weights(g1_weights)
-        g2.ann.set_weights(g2_weights)
-        return g1_weights, g2_weights
+        c1.fitness = c1.calc_fitness()
+        c2.fitness = c2.calc_fitness()
+
+        return c1, c2
 
     def epoch(self, old_population):
         """
@@ -149,30 +160,25 @@ class GA:
         for genome in old_population:
             self.total_fitness += genome.get_fitness()
             if self.best_genome is None or genome.get_fitness() > self.best_genome.get_fitness():
-                self.best_genome = genome
+                self.best_genome = genome.copy()
 
         # Record fitness value parameters
         self.avg_fitness = self.total_fitness / len(old_population)
         self.best_fitness = self.best_genome.get_fitness()
 
         # Generate next generation of individuals
-        population_next = 0 * [None]  # Only holds weights, then put them back into current pop
+        population_next = 0 * [None]
         for i in range(self.pop_size // 2):
             # Tournament select two parents
             p_a = self.select(old_population, 2)
             p_b = self.select(old_population, 2)
 
             # Create two children through uniform crossover
-            (c_a_weights, c_b_weights) = self.crossover(p_a, p_b)
+            (c_a, c_b) = self.crossover(p_a, p_b)
 
             # Add children to population pool for next gen
-            population_next.append(c_a_weights)
-            population_next.append(c_b_weights)
-
-        # Place weights in existing NeuralNet holders
-        for i in range(self.pop_size):
-            old_population[i].ann.set_weights(population_next[i])
-            self.mutate(old_population[i])
+            population_next.append(c_a)
+            population_next.append(c_b)
 
         # Override two weights with the current best (elitism)
         """
@@ -186,13 +192,12 @@ class GA:
 # Runs the GA for the ANN Snake problem
 def main():
     # Calculate number of weights
-    ga = GA(NeuralNet(NUM_INPUTS, NUM_OUTPUTS, NUM_HIDDEN, NUM_PER_HIDDEN).num_weights)
+    ga = GA(NUM_WEIGHTS)
 
     # Initialize a random population of neural nets
     population = ga.pop_size * [None]
     for i in range(0, ga.pop_size):
-        ind = NeuralNet(NUM_INPUTS, NUM_OUTPUTS, NUM_HIDDEN, NUM_PER_HIDDEN)
-        population[i] = Genome(ind)
+        population[i] = Genome()
 
     # Store best genome for each generation
     best_genomes = []
@@ -201,7 +206,7 @@ def main():
     for i in range(ga.num_gens):
         # Call epoch at each step
         population = ga.epoch(population)
-        best_genomes.append(ga.best_genome.ann.get_weights())
+        best_genomes.append(ga.best_genome.weights)
 
         # Print population characteristics
         print "Gen " + str(i) + ": " + "best - " + str(ga.best_fitness) + \
