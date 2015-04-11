@@ -89,6 +89,8 @@ def fitness(weights, headless=1):
 
 # PROGRAM EXECUTION
 if __name__ == '__main__':
+    info = pygame.display.Info()
+    set_screen_size(info.current_w, info.current_h)
     main()
     """
     # Test ANN produced from GA
