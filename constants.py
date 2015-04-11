@@ -48,8 +48,9 @@ NUM_OUTPUTS = 4
 NUM_HIDDEN = 0
 NUM_PER_HIDDEN = (NUM_INPUTS + NUM_OUTPUTS) * 2 // 3
 
-
+"""
 def set_screen_size(width, height):
     global SCREEN_HEIGHT, SCREEN_WIDTH
     SCREEN_HEIGHT = height
     SCREEN_WIDTH = width
+"""
