@@ -16,7 +16,8 @@ class Neuron:
 
     def __init__(self, num_inputs):
         self.num_inputs = num_inputs
-        self.weights = [random.uniform(0, 1) for _ in range(num_inputs + 1)]  # additional weight for bias
+        self.weights = [random.uniform(0, 1) for _ in range(
+            num_inputs + 1)]  # additional weight for bias
 
     def sum(self, inputs):
         """
@@ -37,7 +38,8 @@ class NeuronLayer:
 
     def __init__(self, num_neurons, num_inputs_per_neuron):
         self.num_neurons = num_neurons
-        self.neurons = [Neuron(num_inputs_per_neuron) for _ in range(num_neurons)]
+        self.neurons = [Neuron(num_inputs_per_neuron)
+                        for _ in range(num_neurons)]
 
 
 class NeuralNet:
@@ -48,17 +50,21 @@ class NeuralNet:
     def __init__(self, num_inputs, num_outputs, num_hidden_layers, num_neurons_per_hl):
         self.num_inputs = num_inputs  # Number of inputs to the neural net
         self.num_outputs = num_outputs  # Number of outputs from the network
-        self.num_hidden_layers = num_hidden_layers  # Number of hidden layers in the network
-        self.num_neurons_per_hl = num_neurons_per_hl  # Number of nodes in each hidden layer
+        # Number of hidden layers in the network
+        self.num_hidden_layers = num_hidden_layers
+        # Number of nodes in each hidden layer
+        self.num_neurons_per_hl = num_neurons_per_hl
 
         self._num_weights = None
 
         if num_hidden_layers > 0:
             # First layer
-            self.layers = [NeuronLayer(num_neurons_per_hl, num_inputs)]  # TODO understand this initialization
+            # TODO understand this initialization
+            self.layers = [NeuronLayer(num_neurons_per_hl, num_inputs)]
 
             # Hidden layer(s)
-            self.layers += [NeuronLayer(num_neurons_per_hl, num_neurons_per_hl) for _ in range(0, num_hidden_layers)]
+            self.layers += [NeuronLayer(num_neurons_per_hl, num_neurons_per_hl)
+                            for _ in range(0, num_hidden_layers)]
 
             # Output layer with inputs from hidden
             self.layers += [NeuronLayer(num_outputs, num_neurons_per_hl)]
@@ -93,7 +99,8 @@ class NeuralNet:
         Put the input weights list into the network in order.
         :param weights: list of weights to put into the network
         """
-        assert len(weights) == self.num_weights, "Incorrect number of input weights."
+        assert len(
+            weights) == self.num_weights, "Incorrect number of input weights."
 
         stop = 0
 
@@ -110,7 +117,8 @@ class NeuralNet:
         :param inputs: the inputs to feed into the network
         :return: list of output values
         """
-        assert len(inputs) == self.num_inputs, "Incorrect number of input weights."
+        assert len(
+            inputs) == self.num_inputs, "Incorrect number of input weights."
 
         # Store outputs for each layer
         outputs = []

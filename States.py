@@ -9,7 +9,6 @@ from Food import *
 from constants import *
 
 
-
 # STATE DEFINITIONS
 class State(object):
     def __init__(self):
@@ -30,7 +29,8 @@ class MenuState(State):
         super(MenuState, self).__init__()
         self.font = pygame.font.SysFont(FONT, 24)
 
-        self.text = self.font.render("Press SPACE to view the instructions", True, WHITE)
+        self.text = self.font.render(
+            "Press SPACE to view the instructions", True, WHITE)
         self.text_rect = self.text.get_rect()
         self.text_rect.x = SCREEN_WIDTH // 2 - (self.text_rect.width // 2)
         self.text_rect.y = SCREEN_HEIGHT // 2 - self.text_rect.height
@@ -60,7 +60,8 @@ class OptionsState(State):
     def __init__(self):
         super(OptionsState, self).__init__()
         self.font = pygame.font.SysFont(FONT, 24)
-        self.text = self.font.render("The player uses the arrow keys to move up, left, down, and right.", True, WHITE)
+        self.text = self.font.render(
+            "The player uses the arrow keys to move up, left, down, and right.", True, WHITE)
         self.text_rect = self.text.get_rect()
         self.text_rect.x = SCREEN_WIDTH // 2 - (self.text_rect.width // 2)
         self.text_rect.y = SCREEN_HEIGHT // 2 - self.text_rect.height
@@ -106,7 +107,8 @@ class PlayState(State):
         self.player_text_pos.x = self.player_text_pos.y = CELL_SIDE
 
         # LOGO
-        self.logo_text = pygame.font.SysFont(FONT, 48).render("SNAKE", True, (0, 255, 0))
+        self.logo_text = pygame.font.SysFont(
+            FONT, 48).render("SNAKE", True, (0, 255, 0))
         self.logo_text_pos = self.logo_text.get_rect()
         self.logo_text_pos.x = SCREEN_WIDTH // 2
         self.logo_text_pos.y = CELL_SIDE
@@ -136,14 +138,17 @@ class PlayState(State):
             # DRAW HORIZONTAL MARGINS
             x0 = HORIZONTAL_OFFSET
             x1 = SCREEN_WIDTH - HORIZONTAL_OFFSET - CELL_MARGIN
-            y0 = y1 = (CELL_MARGIN + CELL_SIDE) * row + VERTICAL_OFFSET - CELL_MARGIN
+            y0 = y1 = (CELL_MARGIN + CELL_SIDE) * row + \
+                VERTICAL_OFFSET - CELL_MARGIN
             pygame.draw.line(screen, line_color, (x0, y0), (x1, y1))
 
         for column in range(1, NUM_COLS + 1):
             # DRAW VERTICAL MARGINS
-            x0 = x1 = (CELL_MARGIN + CELL_SIDE) * column + HORIZONTAL_OFFSET - CELL_MARGIN
+            x0 = x1 = (CELL_MARGIN + CELL_SIDE) * column + \
+                HORIZONTAL_OFFSET - CELL_MARGIN
             y0 = VERTICAL_OFFSET
-            y1 = VERTICAL_OFFSET + VERTICAL_MARGINS + (CELL_SIDE * NUM_ROWS) - 2 * CELL_MARGIN
+            y1 = VERTICAL_OFFSET + VERTICAL_MARGINS + \
+                (CELL_SIDE * NUM_ROWS) - 2 * CELL_MARGIN
             pygame.draw.line(screen, line_color, (x0, y0), (x1, y1))
 
     @staticmethod
@@ -162,7 +167,7 @@ class PlayState(State):
                           CELL_SIDE])
 
     @staticmethod
-    def fill_gap((row, column), direction, line_color, screen):
+    def fill_gap(pos, direction, line_color, screen):
         # TODO clean up calculations
         """
         Draws the transitions between player cells
@@ -173,6 +178,8 @@ class PlayState(State):
 
         if direction == 'START':
             return
+
+        (row, column) = pos
 
         start = end = None
         if direction == 'LEFT' or direction == 'UP':
@@ -249,7 +256,8 @@ class PlayState(State):
 
         old_center = food.old_center
         if (old_center is not None) and (not Board.cell_equals(old_center, food.center)):
-            pygame.draw.circle(screen, DEFAULT_COLOR, food.old_center, food.radius)
+            pygame.draw.circle(screen, DEFAULT_COLOR,
+                               food.old_center, food.radius)
 
         # DRAW FOOD
         pygame.draw.circle(screen, food.color, food.center, food.radius)
@@ -269,7 +277,8 @@ class PlayState(State):
 
         # UPDATE TEXT
         # TODO make color generic for choice
-        self.player_text = self.font.render("Player 1: {0:4d}".format(self.player.score), True, WHITE)
+        self.player_text = self.font.render(
+            "Player 1: {0:4d}".format(self.player.score), True, WHITE)
         rect = self.player_text_pos
         rect.width += 20
         pygame.draw.rect(screen, DEFAULT_COLOR, rect)
@@ -329,7 +338,8 @@ class PlayState(State):
         # Fitness calculation
         self.manager.fitness = 10 * self.player.score
 
-        dist_x, dist_y = Board.distance_to(self.player.get_position(), self.food.position)
+        dist_x, dist_y = Board.distance_to(
+            self.player.get_position(), self.food.position)
         self.manager.fitness += NUM_ROWS - abs(dist_y)
         self.manager.fitness += NUM_COLS - abs(dist_x)
 
@@ -401,7 +411,8 @@ class PauseState(State):
     def __init__(self):
         super(PauseState, self).__init__()
         self.font = pygame.font.SysFont(FONT, 24)
-        self.text = self.font.render("Paused, press ENTER to unpause", True, WHITE)
+        self.text = self.font.render(
+            "Paused, press ENTER to unpause", True, WHITE)
         self.text_rect = self.text.get_rect()
         self.dim = Dimmer(1)
         self.shouldDim = 1
@@ -463,13 +474,15 @@ class Dimmer:
     def __init__(self, keep_alive=0):
         self.keep_alive = keep_alive
         if self.keep_alive:
-            self.buffer = pygame.Surface(pygame.display.get_surface().get_size())
+            self.buffer = pygame.Surface(
+                pygame.display.get_surface().get_size())
         else:
             self.buffer = None
 
     def dim(self, darken_factor=64, color_filter=BLACK):
         if not self.keep_alive:
-            self.buffer = pygame.Surface(pygame.display.get_surface().get_size())
+            self.buffer = pygame.Surface(
+                pygame.display.get_surface().get_size())
         self.buffer.blit(pygame.display.get_surface(), (0, 0))
         if darken_factor > 0:
             darken = pygame.Surface(pygame.display.get_surface().get_size())

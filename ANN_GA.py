@@ -12,7 +12,8 @@ CROSS_RATE = 0.70
 MUTATE_RATE = 0.15
 
 HEADLESS = 1
-NUM_WEIGHTS = NeuralNet(NUM_INPUTS, NUM_OUTPUTS, NUM_HIDDEN, NUM_PER_HIDDEN).num_weights
+NUM_WEIGHTS = NeuralNet(NUM_INPUTS, NUM_OUTPUTS,
+                        NUM_HIDDEN, NUM_PER_HIDDEN).num_weights
 
 
 class Genome:
@@ -24,7 +25,8 @@ class Genome:
     def __init__(self, weights=None, fitness=None):
         # Set weights
         if weights is None:
-            self.weights = [(random.uniform(0, 1) * 2) - 1 for _ in range(NUM_WEIGHTS)]
+            self.weights = [(random.uniform(0, 1) * 2) -
+                            1 for _ in range(NUM_WEIGHTS)]
         else:
             self.weights = weights
 
@@ -121,7 +123,8 @@ class GA:
         weights = new_genome.weights
         for i in range(NUM_WEIGHTS):
             if self.mut_rate >= random.random():
-                weights[i] += (random.random() * 2) - 1  # add delta noise in [-1, 1]
+                weights[i] += (random.random() * 2) - \
+                    1  # add delta noise in [-1, 1]
 
         return new_genome
 
@@ -215,7 +218,7 @@ def main():
     # Output structure of fittest individual
     print best_genomes[-1]
 
+
 # Run the GA
 if __name__ == '__main__':
     main()
-

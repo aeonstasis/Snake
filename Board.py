@@ -9,7 +9,8 @@ class Board:
         """
         Initializes board matrix to zeros and draws it to the screen.
         """
-        self.board = [[0 * i * j for i in range(NUM_COLS)] for j in range(NUM_ROWS)]
+        self.board = [
+            [0 * i * j for i in range(NUM_COLS)] for j in range(NUM_ROWS)]
 
     def reset(self):
         """
@@ -69,8 +70,10 @@ class Board:
         :param column: column of cell
         :return: (center_x, center_y)
         """
-        center_x = (CELL_MARGIN + CELL_SIDE) * column + HORIZONTAL_OFFSET + (CELL_SIDE // 2)
-        center_y = (CELL_MARGIN + CELL_SIDE) * row + VERTICAL_OFFSET + (CELL_SIDE // 2)
+        center_x = (CELL_MARGIN + CELL_SIDE) * column + \
+            HORIZONTAL_OFFSET + (CELL_SIDE // 2)
+        center_y = (CELL_MARGIN + CELL_SIDE) * row + \
+            VERTICAL_OFFSET + (CELL_SIDE // 2)
         return int(center_x), int(center_y)
 
     def check_collision(self, position):
