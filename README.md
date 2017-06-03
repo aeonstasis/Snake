@@ -1,5 +1,7 @@
-# Snake
-This is an implementation of 2D Snake using pygame. The game is being used to to implement an artificial neural network for AI learning.
+# Snake (NOTE: being heavily revised)
+This is an implementation of the 2D game "Snake" using pygame. The game is now being used to demonstrate reinforcement learning applied to an arcade game.
+
+I am basing the reinforcement learning integration off of descriptions from a course paper: "Learning to Play 2D Video Games" by Johnson, Roberts, and Fischer.
 
 ## Gameplay
 The player controls a "snake", indicated by a colored square, with the arrow keys, moving around a grid.
@@ -9,7 +11,7 @@ The objective of the game is to collect "food" items that respawn randomly in th
 When the snake collects food, its length will increase by one, making movement progressively more difficult.
 
 ## Implementation Details
-The game is laid out in a very OOP fashion. 
+The game is laid out as follows:
 
 * constants.py, effectively a configuration file, stored constants and values derived from them. 
 
@@ -35,9 +37,6 @@ main() follows the animation cycle and delegates behavior to one of several Stat
 This file holds the states that determine actual game behavior. An interface, State, contains update(), render(), and handle_event() methods. 
 
 At each tick, update() updates all variables and game internals. render() displays necessary information to the screen, and handle_event() listens for keypresses that would change the state.
-
-## Artificial Neural Network
-PyBrain is an existing Python library that provides the ANN functionality. I will interface my game to PyBrain functions and also attempt to code my own simple implementation for comparison.
 
 ## In Progress
 Menu with player color selection <br>
