@@ -16,7 +16,8 @@ class Neuron:
 
     def __init__(self, num_inputs):
         self.num_inputs = num_inputs
-        self.weights = [random.uniform(0, 1) for _ in range(num_inputs + 1)]  # additional weight for bias
+        #bipolar weights for better result
+        self.weights = [random.uniform(-1, 1) for _ in range(num_inputs + 1)]  # additional weight for bias
 
     def sum(self, inputs):
         """
